@@ -78,8 +78,8 @@ for (let i = 0; i < 60; i++) {
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
         r: Math.random() * 2 + 1,
-        dx: (Math.random() - 0.5) * 1,
-        dy: (Math.random() - 0.5) * 1
+        dx: (Math.random() - 0.5),
+        dy: (Math.random() - 0.5)
     });
 }
 
@@ -105,21 +105,40 @@ drawParticles();
 </script>
 
 <script>
-// ---------------------- ТАЙМЕР НА 25 ХВ ----------------------
-let time = 25 * 60;
+// ---------------------- ТАЙМЕР ЗІ ЗБЕРІГАННЯМ ----------------------
 
-function updateTimer() {
-    let minutes = Math.floor(time / 60);
-    let seconds = time % 60;
+const timerEl = document.getElementById("timer");
 
-    document.getElementById("timer").textContent =
-        (minutes < 10 ? "0" : "") + minutes + ":" +
-        (seconds < 10 ? "0" : "") + seconds;
+const TIMER_KEY = "maintenance_end_time";
+const TOTAL_TIME = 25 * 60 * 1000; // 25 хвилин
 
-    if (time > 0) time--;
+let endTime = parseInt(localStorage.getItem(TIMER_KEY));
+
+// Якщо таймер відсутній або протермінований — створити новий
+if (isNaN(endTime) || endTime < Date.now()) {
+    endTime = Date.now() + TOTAL_TIME;
+    localStorage.setItem(TIMER_KEY, String(endTime));
 }
 
-setInterval(updateTimer, 1000);
+function updateTimer() {
+    const now = Date.now();
+    let remaining = endTime - now;
+
+    if (remaining <= 0) {
+        timerEl.textContent = "00:00";
+        return;
+    }
+
+    let minutes = Math.floor(remaining / 60000);
+    let seconds = Math.floor((remaining % 60000) / 1000);
+
+    timerEl.textContent =
+        `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+
+    requestAnimationFrame(updateTimer); // без лагів, працює і на мобільних
+}
+
+updateTimer();
 </script>
 
 </body>
