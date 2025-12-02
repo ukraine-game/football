@@ -70,10 +70,12 @@ input{width:100%;padding:12px;border-radius:10px;border:1px solid #94a3b8;font-s
 <div id="step4" class="card" style="display:none">
 <div class="progress">3 з 4</div>
 <h2>Режими гри</h2>
-<label class="checkbox"><input type="checkbox" name="mode" value="5"> Футбол <span class="note">+5 грн</span></label>
-<label class="checkbox"><input type="checkbox" name="mode" value="2"> Касанка (1 торкання) <span class="note">+2 грн</span></label>
-<label class="checkbox"><input type="checkbox" name="mode" value="3"> Від воріт, до воріт <span class="note">+3 грн</span></label>
-<label class="checkbox"><input type="checkbox" name="mode" value="0"> Нічого з переліченого <span class="note">+0 грн</span></label>
+<div id="modeOptions">
+<label class="checkbox"><input type="checkbox" value="5" onchange="updateMode(this)"> Футбол <span class="note">+5 грн</span></label>
+<label class="checkbox"><input type="checkbox" value="2" onchange="updateMode(this)"> Касанка (1 торкання) <span class="note">+2 грн</span></label>
+<label class="checkbox"><input type="checkbox" value="3" onchange="updateMode(this)"> Від воріт, до воріт <span class="note">+3 грн</span></label>
+<label class="checkbox"><input type="checkbox" value="0" onchange="updateMode(this)"> Нічого з переліченого <span class="note">+0 грн</span></label>
+</div>
 <button class="btn" style="margin-top:16px;background:#16a34a;width:100%" onclick="finishAll()">Готово</button>
 </div>
 
@@ -88,8 +90,8 @@ input{width:100%;padding:12px;border-radius:10px;border:1px solid #94a3b8;font-s
 </div>
 
 <script>
-let base=15,total=15,selectedOptions=0,selectedCoupons=0;
-let selectedDay='',selectedTime='',selectedTimeType='',selectedOptionsArr=[],selectedModeTxt='',selectedModeValue=0;
+let base=15,total=15,selectedOptions=0,selectedCoupons=0,selectedModeValue=0;
+let selectedDay='',selectedTime='',selectedTimeType='',selectedOptionsArr=[],selectedModeArr=[];
 const ADMIN_ID="2106920885",USER_ID="2106920885";
 
 function show(id){document.querySelectorAll('.card').forEach(c=>c.style.display='none');document.getElementById(id).style.display='block';updateAllLiveSums();}
@@ -98,39 +100,22 @@ function chooseDay(d){selectedDay=d;show('step2b');}
 function chooseTimeType(type){selectedTimeType=type;if(type==='any'){total=base;document.getElementById('customTimeBox').style.display='none';selectedTime='будь-який';}else{total=base+3;document.getElementById('customTimeBox').style.display='block';}updateAllLiveSums();}
 function finishStep2(){if(selectedTimeType==='custom'){selectedTime=document.getElementById('customTimeInput').value||'не вказано';}show('step3');}
 function updateOptions(ch){if(ch.checked){selectedOptions+=Number(ch.value);selectedOptionsArr.push(ch.parentElement.textContent.trim());}else{selectedOptions-=Number(ch.value);selectedOptionsArr=selectedOptionsArr.filter(x=>x!==ch.parentElement.textContent.trim());}updateAllLiveSums();}
+function updateMode(ch){if(ch.checked){selectedModeValue+=Number(ch.value);selectedModeArr.push(ch.parentElement.textContent.trim());}else{selectedModeValue-=Number(ch.value);selectedModeArr=selectedModeArr.filter(x=>x!==ch.parentElement.textContent.trim());}updateAllLiveSums();}
 function goStep4(){show('step4');}
-function finishAll(){
-let modeInput=document.querySelector('input[name="mode"]:checked');
-if(!modeInput){alert("Виберіть режим гри!");return;}
-selectedModeValue=Number(modeInput.value);
-selectedModeTxt=modeInput.parentElement.textContent.trim();
-let final=total+selectedOptions+selectedModeValue;
-document.getElementById('finalSum').innerText=`Сума: ${final} грн`;
-localStorage.setItem('lastOrder',JSON.stringify({coupons:selectedCoupons,day:selectedDay,time:selectedTime,timeType:selectedTimeType,options:selectedOptionsArr,modeTxt:selectedModeTxt,sum:final}));
-show('final');
-}
+function finishAll(){if(selectedModeArr.length===0){alert("Виберіть хоча б один режим!");return;}let final=total+selectedOptions+selectedModeValue;document.getElementById('finalSum').innerText=`Сума: ${final} грн`;localStorage.setItem('lastOrder',JSON.stringify({coupons:selectedCoupons,day:selectedDay,time:selectedTime,timeType:selectedTimeType,options:selectedOptionsArr,modes:selectedModeArr,sum:final}));show('final');}
 function restartOrder(){location.reload();}
-function updateAllLiveSums(){let s3=document.getElementById('liveSum3');let live=total+selectedOptions+0;if(s3)s3.innerText=`Сума: ${live} грн`;}
-function sendToAdmin(){
-let order=JSON.parse(localStorage.getItem('lastOrder')||'{}');
-fetch(`https://api.telegram.org/bot8301414454:AAGRbesK_sv51BoCilemIn0q14AEOryNoHY/sendMessage`,{
-method:'POST',
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({chat_id:ADMIN_ID,text:`Нова заявка:
+function updateAllLiveSums(){let s3=document.getElementById('liveSum3');let live=total+selectedOptions+selectedModeValue;if(s3)s3.innerText=`Сума: ${live} грн`;}
+function sendToAdmin(){let order=JSON.parse(localStorage.getItem('lastOrder')||'{}');fetch(`https://api.telegram.org/bot8301414454:AAGRbesK_sv51BoCilemIn0q14AEOryNoHY/sendMessage`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:ADMIN_ID,text:`Нова заявка:
 Кількість купонів: ${order.coupons}
 День: ${order.day}
 Година: ${order.time}
 Опції: ${order.options.join(', ')}
-Режим: ${order.modeTxt}
+Режими: ${order.modes.join(', ')}
 Сума: ${order.sum} грн
 Відповісти командою:
 /yes - схвалити
-/no - відмовити`})
-});
-alert("Заявка надіслана на перевірку!");window.location.href="index.html";
-}
+/no - відмовити`})});alert("Заявка надіслана на перевірку!");window.location.href="index.html";}
 </script>
 
 </body>
 </html>
-
