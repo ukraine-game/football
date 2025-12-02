@@ -20,6 +20,7 @@ h2{margin:0 0 14px;font-size:20px;font-weight:700}
 input{width:100%;padding:12px;border-radius:10px;border:1px solid #94a3b8;font-size:16px}
 .checkbox{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:16px;flex-wrap:wrap}
 .sum{margin-top:20px;font-size:18px;font-weight:700;text-align:center}
+.fullwidth-btn{width:100%;margin-top:16px;background:#16a34a}
 </style>
 </head>
 <body>
@@ -53,7 +54,7 @@ input{width:100%;padding:12px;border-radius:10px;border:1px solid #94a3b8;font-s
 <div class="note">Введіть ваш час (приклад: 12:00)</div>
 <input type="text" id="customTimeInput" placeholder="12:00">
 </div>
-<button class="btn" style="margin-top:16px;background:#16a34a;width:100%" onclick="finishStep2()">Далі</button>
+<button class="btn fullwidth-btn" onclick="finishStep2()">Далі</button>
 </div>
 
 <div id="step3" class="card" style="display:none">
@@ -64,7 +65,7 @@ input{width:100%;padding:12px;border-radius:10px;border:1px solid #94a3b8;font-s
 <label class="checkbox"><input type="checkbox" value="3" onchange="updateOptions(this)"> Старання бити/пасувати <span class="note">+3 грн</span></label>
 <label class="checkbox"><input type="checkbox" value="2" onchange="updateOptions(this)"> Бутси <span class="note">+2 грн</span></label>
 <label class="checkbox"><input type="checkbox" value="0" onchange="updateOptions(this)"> Нічого з переліченого <span class="note">+0 грн</span></label>
-<button class="btn" style="margin-top:16px;background:#16a34a;width:100%" onclick="goStep4()">Далі</button>
+<button class="btn fullwidth-btn" onclick="goStep4()">Далі</button>
 </div>
 
 <div id="step4" class="card" style="display:none">
@@ -76,14 +77,14 @@ input{width:100%;padding:12px;border-radius:10px;border:1px solid #94a3b8;font-s
 <label class="checkbox"><input type="checkbox" value="3" onchange="updateMode(this)"> Від воріт, до воріт <span class="note">+3 грн</span></label>
 <label class="checkbox"><input type="checkbox" value="0" onchange="updateMode(this)"> Нічого з переліченого <span class="note">+0 грн</span></label>
 </div>
-<button class="btn" style="margin-top:16px;background:#16a34a;width:100%" onclick="finishAll()">Готово</button>
+<button class="btn fullwidth-btn" onclick="finishAll()">Готово</button>
 </div>
 
 <div id="final" class="card" style="display:none;text-align:center">
 <h2 id="finalSum">Сума: 0 грн</h2>
 <div class="btn-grid" style="margin-top:15px">
-<button class="btn" style="background:#16a34a" onclick="sendToAdmin()">Відправити заявку</button>
-<button class="btn btn-alt" onclick="restartOrder()">Змінити</button>
+<button class="btn fullwidth-btn" onclick="sendToAdmin()">Відправити заявку</button>
+<button class="btn btn-alt fullwidth-btn" onclick="restartOrder()">Змінити</button>
 </div>
 </div>
 
@@ -102,9 +103,9 @@ function finishStep2(){if(selectedTimeType==='custom'){selectedTime=document.get
 function updateOptions(ch){if(ch.checked){selectedOptions+=Number(ch.value);selectedOptionsArr.push(ch.parentElement.textContent.trim());}else{selectedOptions-=Number(ch.value);selectedOptionsArr=selectedOptionsArr.filter(x=>x!==ch.parentElement.textContent.trim());}updateAllLiveSums();}
 function updateMode(ch){if(ch.checked){selectedModeValue+=Number(ch.value);selectedModeArr.push(ch.parentElement.textContent.trim());}else{selectedModeValue-=Number(ch.value);selectedModeArr=selectedModeArr.filter(x=>x!==ch.parentElement.textContent.trim());}updateAllLiveSums();}
 function goStep4(){show('step4');}
-function finishAll(){if(selectedModeArr.length===0){alert("Виберіть хоча б один режим!");return;}let final=total+selectedOptions+selectedModeValue;document.getElementById('finalSum').innerText=`Сума: ${final} грн`;localStorage.setItem('lastOrder',JSON.stringify({coupons:selectedCoupons,day:selectedDay,time:selectedTime,timeType:selectedTimeType,options:selectedOptionsArr,modes:selectedModeArr,sum:final}));show('final');}
+function finishAll(){if(selectedModeArr.length===0){alert("Виберіть хоча б один режим!");return;}let final=(total+selectedOptions+selectedModeValue)*selectedCoupons;document.getElementById('finalSum').innerText=`Сума: ${final} грн`;localStorage.setItem('lastOrder',JSON.stringify({coupons:selectedCoupons,day:selectedDay,time:selectedTime,timeType:selectedTimeType,options:selectedOptionsArr,modes:selectedModeArr,sum:final}));show('final');}
 function restartOrder(){location.reload();}
-function updateAllLiveSums(){let s3=document.getElementById('liveSum3');let live=total+selectedOptions+selectedModeValue;if(s3)s3.innerText=`Сума: ${live} грн`;}
+function updateAllLiveSums(){let s3=document.getElementById('liveSum3');let live=(total+selectedOptions+selectedModeValue)*selectedCoupons;if(s3)s3.innerText=`Сума: ${live} грн`;}
 function sendToAdmin(){let order=JSON.parse(localStorage.getItem('lastOrder')||'{}');fetch(`https://api.telegram.org/bot8301414454:AAGRbesK_sv51BoCilemIn0q14AEOryNoHY/sendMessage`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:ADMIN_ID,text:`Нова заявка:
 Кількість купонів: ${order.coupons}
 День: ${order.day}
@@ -119,4 +120,3 @@ function sendToAdmin(){let order=JSON.parse(localStorage.getItem('lastOrder')||'
 
 </body>
 </html>
-
