@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Замовлення купону</title>
+<style>
+  body{margin:0;font-family:Inter, sans-serif;background:#0d1320;color:#fff;padding:0}
+  .container{padding:20px}
+  .card{background:#fff;border-radius:16px;padding:20px;color:#000;box-shadow:0 6px 20px rgba(0,0,0,0.35);animation:fadeIn .35s ease}
+  @keyframes fadeIn{0%{opacity:0;transform:translateY(12px)}100%{opacity:1;transform:translateY(0)}}
+  h2{margin:0 0 14px;font-size:20px;font-weight:700}
+  .progress{color:#9aa6b2;font-size:14px;margin-bottom:10px}
+  .btn-grid{display:grid;gap:10px;margin-top:10px}
+  .btn{padding:14px;border-radius:12px;border:none;font-size:16px;font-weight:600;background:#0ea5e9;color:#fff;cursor:pointer;transition:.2s}
+  .btn:active{transform:scale(.95)}
+  .btn-alt{background:#e2e8f0;color:#000}
+  .note{font-size:12px;color:#6b7280;margin-bottom:8px;margin-top:-2px}
+  .input-box{margin-top:12px}
+  input{width:100%;padding:12px;border-radius:10px;border:1px solid #94a3b8;font-size:16px}
+  .checkbox{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:16px}
+  .sum{margin-top:20px;font-size:18px;font-weight:700;text-align:center}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div id="step1" class="card">
+    <h2>Кількість купонів</h2>
+    <div class="btn-grid">
+      <button class="btn" onclick="chooseCoupons(1)">1</button>
+      <button class="btn" onclick="chooseCoupons(2)">2</button>
+      <button class="btn" onclick="chooseCoupons(3)">3</button>
+      <button class="btn" onclick="chooseCoupons(4)">4</button>
+      <button class="btn" onclick="chooseCoupons(5)">5</button>
+    </div>
+  </div>
+
+  <div id="step2" class="card" style="display:none">
+    <div class="progress">1 з 4</div>
+    <h2>На який день?</h2>
+    <div class="btn-grid">
+      <button class="btn" onclick="chooseDay('Сьогодні')">Сьогодні</button>
+      <button class="btn" onclick="chooseDay('Завтра')">Завтра</button>
+      <button class="btn" onclick="chooseDay('Після завтра')">Після завтра</button>
+    </div>
+  </div>
+
+  <div id="step2b" class="card" style="display:none">
+    <div class="progress">1 з 4</div>
+    <h2>На котру годину?</h2>
+    <div class="note">У будь який час — +0 грн</div>
+    <button class="btn" onclick="chooseTimeType('any')">У будь який час</button>
+    <div class="note" style="margin-top:14px">У мій час — +3 грн</div>
+    <button class="btn" onclick="chooseTimeType('custom')">У мій час</button>
+    <div id="customTimeBox" class="input-box" style="display:none">
+      <div class="note">Введіть ваш час (приклад: 12:00)</div>
+      <input type="text" id="customTimeInput" placeholder="12:00">
+    </div>
+    <button class="btn" style="margin-top:16px;background:#16a34a" onclick="finishStep2()">Далі</button>
+  </div>
+
+  <div id="step3" class="card" style="display:none">
+    <div class="progress">2 з 4</div>
+    <h2>Додаткові опції</h2>
+    <div id="liveSum3" class="sum" style="margin-top:0;margin-bottom:10px;color:#0ea5e9">Сума: 15 грн</div>
+    <label class="checkbox"><input type="checkbox" value="5" onchange="updateOptions(this);updateLiveSum()"> Нормальне ставлення <span class="note">+5 грн</span></label>
+    <label class="checkbox"><input type="checkbox" value="3" onchange="updateOptions(this);updateLiveSum()"> Старання бити/пасувати <span class="note">+3 грн</span></label>
+    <label class="checkbox"><input type="checkbox" value="2" onchange="updateOptions(this);updateLiveSum()"> Бутси <span class="note">+2 грн</span></label>
+    <label class="checkbox"><input type="checkbox" value="0" onchange="updateOptions(this);updateLiveSum()"> Нічого з переліченого <span class="note">+0 грн</span></label>
+    <button class="btn" style="margin-top:16px;background:#16a34a" onclick="goStep4()">Далі</button>
+  </div>
+
+  <div id="step4" class="card" style="display:none">
+    <div class="progress">3 з 4</div>
+    <h2>Режими гри</h2>
+    <label class="checkbox"><input type="radio" name="mode" value="5"> Футбол <span class="note">+5 грн</span></label>
+    <label class="checkbox"><input type="radio" name="mode" value="2"> Касанка (1 торкання) <span class="note">+2 грн</span></label>
+    <label class="checkbox"><input type="radio" name="mode" value="3"> Від воріт, до воріт <span class="note">+3 грн</span></label>
+    <label class="checkbox"><input type="radio" name="mode" value="0"> Нічого з переліченого <span class="note">+0 грн</span></label>
+    <button class="btn" style="margin-top:16px;background:#16a34a" onclick="finishAll()">Готово</button>
+  </div>
+
+  <div id="final" class="card" style="display:none;text-align:center">
+    <h2 id="finalSum">Сума: 0 грн</h2>
+    <div class="btn-grid" style="margin-top:15px">
+      <button class="btn" style="background:#16a34a" onclick="sendToAdmin()">Надіслати адміну</button>
+      <button class="btn btn-alt" onclick="restartOrder()">Змінити</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const BOT_TOKEN = "8301414454:AAGRbesK_sv51BoCilemIn0q14AEOryNoHY";
+const ADMIN_ID = "2106920885";
+const USER_ID = "2106920885";
+
+let base=15,total=15,selectedOptions=0,selectedCoupons=0,selectedDay='',selectedTime='',selectedTimeType='',selectedOptionsArr=[],selectedModeTxt='',selectedModeValue=0;
+
+function show(id){document.querySelectorAll('.card').forEach(c=>c.style.display='none');document.getElementById(id).style.display='block';updateAllLiveSums();}
+function chooseCoupons(n){selectedCoupons=n;show('step2');}
+function chooseDay(d){selectedDay=d;show('step2b');}
+function chooseTimeType(type){selectedTimeType=type;if(type==='any'){total=base;document.getElementById('customTimeBox').style.display='none';selectedTime='будь-який';}else{total=base+3;document.getElementById('customTimeBox').style.display='block';}updateAllLiveSums();}
+function finishStep2(){if(selectedTimeType==='custom'){selectedTime=document.getElementById('customTimeInput').value||'не вказано';}show('step3');}
+function updateOptions(ch){if(ch.checked){selectedOptions+=Number(ch.value);selectedOptionsArr.push(ch.parentElement.textContent.trim());}else{selectedOptions-=Number(ch.value);selectedOptionsArr=selectedOptionsArr.filter(x=>x!==ch.parentElement.textContent.trim());}updateAllLiveSums();}
+function goStep4(){show('step4');}
+function finishAll(){let modeInput=document.querySelector('input[name="mode"]:checked');selectedModeValue=modeInput?Number(modeInput.value):0;selectedModeTxt=modeInput?modeInput.parentElement.textContent.trim():'Нічого';let final=total+selectedOptions+selectedModeValue;document.getElementById('finalSum').innerText=`Сума: ${final} грн`;localStorage.setItem('lastOrder',JSON.stringify({coupons:selectedCoupons,day:selectedDay,time:selectedTime,timeType:selectedTimeType,options:selectedOptionsArr,modeTxt:selectedModeTxt,sum:final}));show('final');}
+function restartOrder(){location.reload();}
+function updateAllLiveSums(){let s3=document.getElementById('liveSum3');let live=total+selectedOptions+0;if(s3)s3.innerText=`Сума: ${live} грн`;}
+
+// Надсилання адміну з кнопками Telegram
+function sendToAdmin(){
+  let order=JSON.parse(localStorage.getItem('lastOrder')||'{}');
+  fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      chat_id:ADMIN_ID,
+      text:`Нова заявка:
+Купони: ${order.coupons}
+День: ${order.day}
+Година: ${order.time}
+Опції: ${order.options.join(', ')}
+Режим: ${order.modeTxt}
+Сума: ${order.sum} грн`,
+      reply_markup:JSON.stringify({
+        inline_keyboard:[
+          [{text:"Схвалити 👍", callback_data:"approve"}],
+          [{text:"Відмовити 🚫", callback_data:"decline"}]
+        ]
+      })
+    })
+  });
+  fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({chat_id:USER_ID,text:`Ваша заявка надіслана адміну для перевірки.`})
+  });
+  alert("Заявка надіслана адміну та користувачу");
+  window.location.href="index.html";
+}
+</script>
+
+</body>
+</html>
