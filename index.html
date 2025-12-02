@@ -56,8 +56,7 @@
 
 <div id="content">
     <h1>Технічні роботи</h1>
-    <p>Будуть тривати ще:</p>
-    <div id="timer">25:00</div>
+    <p>Незабаром буде завершено! Фінальні штрихи...</p>
 </div>
 
 <script>
@@ -104,42 +103,6 @@ function drawParticles() {
 drawParticles();
 </script>
 
-<script>
-// ---------------------- ТАЙМЕР ЗІ ЗБЕРІГАННЯМ ----------------------
-
-const timerEl = document.getElementById("timer");
-
-const TIMER_KEY = "maintenance_end_time";
-const TOTAL_TIME = 25 * 60 * 1000; // 25 хвилин
-
-let endTime = parseInt(localStorage.getItem(TIMER_KEY));
-
-// Якщо таймер відсутній або протермінований — створити новий
-if (isNaN(endTime) || endTime < Date.now()) {
-    endTime = Date.now() + TOTAL_TIME;
-    localStorage.setItem(TIMER_KEY, String(endTime));
-}
-
-function updateTimer() {
-    const now = Date.now();
-    let remaining = endTime - now;
-
-    if (remaining <= 0) {
-        timerEl.textContent = "00:00";
-        return;
-    }
-
-    let minutes = Math.floor(remaining / 60000);
-    let seconds = Math.floor((remaining % 60000) / 1000);
-
-    timerEl.textContent =
-        `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-
-    requestAnimationFrame(updateTimer); // без лагів, працює і на мобільних
-}
-
-updateTimer();
-</script>
-
 </body>
 </html>
+
