@@ -84,7 +84,7 @@
   <div id="final" class="card" style="display:none;text-align:center">
     <h2 id="finalSum">Сума: 0 грн</h2>
     <div class="btn-grid" style="margin-top:15px">
-      <button class="btn" style="background:#16a34a" onclick="sendToAdmin()">Надіслати адміну</button>
+      <button class="btn" style="background:#16a34a" onclick="sendToAdmin()">Відправити адміну</button>
       <button class="btn btn-alt" onclick="restartOrder()">Змінити</button>
     </div>
   </div>
@@ -92,11 +92,9 @@
 </div>
 
 <script>
-const BOT_TOKEN = "8301414454:AAGRbesK_sv51BoCilemIn0q14AEOryNoHY";
-const ADMIN_ID = "2106920885";
-const USER_ID = "2106920885";
-
-let base=15,total=15,selectedOptions=0,selectedCoupons=0,selectedDay='',selectedTime='',selectedTimeType='',selectedOptionsArr=[],selectedModeTxt='',selectedModeValue=0;
+let base = 15, total = 15, selectedOptions = 0, selectedCoupons = 0;
+let selectedDay='', selectedTime='', selectedTimeType='', selectedOptionsArr=[], selectedModeTxt='', selectedModeValue=0;
+const ADMIN_ID = "2106920885", USER_ID = "2106920885"; // для тесту
 
 function show(id){document.querySelectorAll('.card').forEach(c=>c.style.display='none');document.getElementById(id).style.display='block';updateAllLiveSums();}
 function chooseCoupons(n){selectedCoupons=n;show('step2');}
@@ -109,36 +107,22 @@ function finishAll(){let modeInput=document.querySelector('input[name="mode"]:ch
 function restartOrder(){location.reload();}
 function updateAllLiveSums(){let s3=document.getElementById('liveSum3');let live=total+selectedOptions+0;if(s3)s3.innerText=`Сума: ${live} грн`;}
 
-// Надсилання адміну з кнопками Telegram
+// Надсилання адміну з кнопками
 function sendToAdmin(){
   let order=JSON.parse(localStorage.getItem('lastOrder')||'{}');
-  fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,{
+  fetch(`https://api.telegram.org/bot8301414454:AAGRbesK_sv51BoCilemIn0q14AEOryNoHY/sendMessage`,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      chat_id:ADMIN_ID,
-      text:`Нова заявка:
-Купони: ${order.coupons}
+    body:JSON.stringify({chat_id:ADMIN_ID,text:`Нова заявка:
+Кількість купонів: ${order.coupons}
 День: ${order.day}
 Година: ${order.time}
 Опції: ${order.options.join(', ')}
 Режим: ${order.modeTxt}
 Сума: ${order.sum} грн`,
-      reply_markup:JSON.stringify({
-        inline_keyboard:[
-          [{text:"Схвалити 👍", callback_data:"approve"}],
-          [{text:"Відмовити 🚫", callback_data:"decline"}]
-        ]
-      })
-    })
+      reply_markup:JSON.stringify({inline_keyboard:[[{text:"Схвалити 👍",callback_data:"approve"},{text:"Відмовити 🚫",callback_data:"decline"}]]})})
   });
-  fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({chat_id:USER_ID,text:`Ваша заявка надіслана адміну для перевірки.`})
-  });
-  alert("Заявка надіслана адміну та користувачу");
-  window.location.href="index.html";
+  alert("Заявка надіслана на перевірку!");window.location.href="index.html";
 }
 </script>
 
