@@ -94,36 +94,38 @@ drawParticles();
 
 
 // ---------------------- ТАЙМЕР ----------------------
+const timerEl = document.getElementById("timer");
+
 const TIMER_KEY = "maintenance_end_time";
-const TOTAL_TIME = 20 * 60 * 1000; // 20 хв у мс
+const TOTAL_TIME = 20 * 60 * 1000; // 20 хв
 
-let endTime = localStorage.getItem(TIMER_KEY);
+let endTime = parseInt(localStorage.getItem(TIMER_KEY));
 
-// Якщо таймер не збережений — створюємо новий
-if (!endTime) {
+// Якщо некоректне значення або немає — створюємо новий
+if (isNaN(endTime) || endTime < Date.now()) {
     endTime = Date.now() + TOTAL_TIME;
-    localStorage.setItem(TIMER_KEY, endTime);
+    localStorage.setItem(TIMER_KEY, String(endTime));
 }
-
-endTime = parseInt(endTime);
 
 function updateTimer() {
     const now = Date.now();
     let remaining = endTime - now;
 
     if (remaining <= 0) {
-        document.getElementById("timer").innerText = "00:00";
+        timerEl.textContent = "00:00";
         return;
     }
 
     let minutes = Math.floor(remaining / 60000);
     let seconds = Math.floor((remaining % 60000) / 1000);
 
-    document.getElementById("timer").innerText =
+    timerEl.textContent =
         `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+
+    // плавна та стабільна робота на телефонах
+    requestAnimationFrame(updateTimer);
 }
 
-setInterval(updateTimer, 500);
 updateTimer();
 </script>
 
