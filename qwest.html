@@ -40,24 +40,22 @@ input{width:100%;padding:12px;border-radius:10px;border:1px solid #94a3b8;font-s
 <div class="progress">1 з 4</div>
 <h2>На який день?</h2>
 <div class="btn-grid">
-<button class="btn" onclick="chooseDay('Сьогодні')">Сьогодні</button>
-<button class="btn" onclick="chooseDay('Завтра')">Завтра</button>
-<button class="btn" onclick="chooseDay('Після завтра')">Після завтра</button>
+<label class="checkbox"><input type="radio" name="day" value="Сьогодні" onclick="chooseDay('Сьогодні')">Сьогодні</label>
+<label class="checkbox"><input type="radio" name="day" value="Завтра" onclick="chooseDay('Завтра')">Завтра</label>
+<label class="checkbox"><input type="radio" name="day" value="Після завтра" onclick="chooseDay('Після завтра')">Після завтра</label>
 </div>
 </div>
 
 <div id="step2b" class="card" style="display:none">
 <div class="progress">1 з 4</div>
 <h2>На котру годину?</h2>
-<div class="note">У будь який час — +0 грн</div>
-<button class="btn" onclick="chooseTimeType('any')">У будь який час</button>
-<div class="note" style="margin-top:14px">У мій час — +3 грн</div>
-<button class="btn" onclick="chooseTimeType('custom')">У мій час</button>
+<label class="checkbox"><input type="radio" name="timeType" value="any" onclick="chooseTimeType('any')">У будь який час — +0 грн</label>
+<label class="checkbox"><input type="radio" name="timeType" value="custom" onclick="chooseTimeType('custom')">У мій час — +3 грн</label>
 <div id="customTimeBox" class="input-box" style="display:none">
 <div class="note">Введіть ваш час (приклад: 12:00)</div>
 <input type="text" id="customTimeInput" placeholder="12:00">
 </div>
-<button class="btn" style="margin-top:16px;background:#16a34a" onclick="finishStep2()">Далі</button>
+<button class="btn" style="margin-top:16px;background:#16a34a;width:100%" onclick="finishStep2()">Далі</button>
 </div>
 
 <div id="step3" class="card" style="display:none">
@@ -68,7 +66,7 @@ input{width:100%;padding:12px;border-radius:10px;border:1px solid #94a3b8;font-s
 <label class="checkbox"><input type="checkbox" value="3" onchange="updateOptions(this)"> Старання бити/пасувати <span class="note">+3 грн</span></label>
 <label class="checkbox"><input type="checkbox" value="2" onchange="updateOptions(this)"> Бутси <span class="note">+2 грн</span></label>
 <label class="checkbox"><input type="checkbox" value="0" onchange="updateOptions(this)"> Нічого з переліченого <span class="note">+0 грн</span></label>
-<button class="btn" style="margin-top:16px;background:#16a34a" onclick="goStep4()">Далі</button>
+<button class="btn" style="margin-top:16px;background:#16a34a;width:100%" onclick="goStep4()">Далі</button>
 </div>
 
 <div id="step4" class="card" style="display:none">
@@ -86,7 +84,7 @@ input{width:100%;padding:12px;border-radius:10px;border:1px solid #94a3b8;font-s
 <div id="final" class="card" style="display:none;text-align:center">
 <h2 id="finalSum">Сума: 0 грн</h2>
 <div class="btn-grid" style="margin-top:15px">
-<button class="btn" style="background:#16a34a" onclick="sendToAdmin()">Відправити адміну</button>
+<button class="btn" style="background:#16a34a" onclick="sendToAdmin()">Відправити на перевірку</button>
 <button class="btn btn-alt" onclick="restartOrder()">Змінити</button>
 </div>
 </div>
@@ -132,8 +130,7 @@ body:JSON.stringify({chat_id:ADMIN_ID,text:`Нова заявка:
 Сума: ${order.sum} грн
 Відповісти командою:
 /yes - схвалити
-/no - відмовити`,
-})
+/no - відмовити`})
 });
 alert("Заявка надіслана на перевірку!");window.location.href="index.html";
 }
