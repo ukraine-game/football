@@ -39,11 +39,9 @@ input{width:100%;padding:12px;border-radius:10px;border:1px solid #94a3b8;font-s
 <div id="step2" class="card" style="display:none">
 <div class="progress">1 з 4</div>
 <h2>На який день?</h2>
-<div class="btn-grid">
 <label class="checkbox"><input type="radio" name="day" value="Сьогодні" onclick="chooseDay('Сьогодні')">Сьогодні</label>
 <label class="checkbox"><input type="radio" name="day" value="Завтра" onclick="chooseDay('Завтра')">Завтра</label>
 <label class="checkbox"><input type="radio" name="day" value="Після завтра" onclick="chooseDay('Після завтра')">Після завтра</label>
-</div>
 </div>
 
 <div id="step2b" class="card" style="display:none">
@@ -72,19 +70,17 @@ input{width:100%;padding:12px;border-radius:10px;border:1px solid #94a3b8;font-s
 <div id="step4" class="card" style="display:none">
 <div class="progress">3 з 4</div>
 <h2>Режими гри</h2>
-<div style="display:flex;flex-direction:column;gap:10px">
 <label class="checkbox"><input type="radio" name="mode" value="5"> Футбол <span class="note">+5 грн</span></label>
 <label class="checkbox"><input type="radio" name="mode" value="2"> Касанка (1 торкання) <span class="note">+2 грн</span></label>
 <label class="checkbox"><input type="radio" name="mode" value="3"> Від воріт, до воріт <span class="note">+3 грн</span></label>
 <label class="checkbox"><input type="radio" name="mode" value="0"> Нічого з переліченого <span class="note">+0 грн</span></label>
-</div>
 <button class="btn" style="margin-top:16px;background:#16a34a;width:100%" onclick="finishAll()">Готово</button>
 </div>
 
 <div id="final" class="card" style="display:none;text-align:center">
 <h2 id="finalSum">Сума: 0 грн</h2>
 <div class="btn-grid" style="margin-top:15px">
-<button class="btn" style="background:#16a34a" onclick="sendToAdmin()">Відправити на перевірку</button>
+<button class="btn" style="background:#16a34a" onclick="sendToAdmin()">Відправити адміну</button>
 <button class="btn btn-alt" onclick="restartOrder()">Змінити</button>
 </div>
 </div>
@@ -92,9 +88,9 @@ input{width:100%;padding:12px;border-radius:10px;border:1px solid #94a3b8;font-s
 </div>
 
 <script>
-let base = 15, total = 15, selectedOptions = 0, selectedCoupons = 0;
-let selectedDay='', selectedTime='', selectedTimeType='', selectedOptionsArr=[], selectedModeTxt='', selectedModeValue=0;
-const ADMIN_ID = "2106920885", USER_ID = "2106920885";
+let base=15,total=15,selectedOptions=0,selectedCoupons=0;
+let selectedDay='',selectedTime='',selectedTimeType='',selectedOptionsArr=[],selectedModeTxt='',selectedModeValue=0;
+const ADMIN_ID="2106920885",USER_ID="2106920885";
 
 function show(id){document.querySelectorAll('.card').forEach(c=>c.style.display='none');document.getElementById(id).style.display='block';updateAllLiveSums();}
 function chooseCoupons(n){selectedCoupons=n;show('step2');}
@@ -115,7 +111,6 @@ show('final');
 }
 function restartOrder(){location.reload();}
 function updateAllLiveSums(){let s3=document.getElementById('liveSum3');let live=total+selectedOptions+0;if(s3)s3.innerText=`Сума: ${live} грн`;}
-
 function sendToAdmin(){
 let order=JSON.parse(localStorage.getItem('lastOrder')||'{}');
 fetch(`https://api.telegram.org/bot8301414454:AAGRbesK_sv51BoCilemIn0q14AEOryNoHY/sendMessage`,{
