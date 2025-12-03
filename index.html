@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="uk">
-<head>
+<html lang="uk"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мобільний Інтерфейс</title>
@@ -131,25 +129,25 @@
 
         <div id="content-wrapper"> 
             
-            <div id="orders-content" class="content">
+            <div id="orders-content" class="content" style="display: none;">
                 <button id="order-button">
                     Зробити замовлення
                 </button>
             </div>
 
-            <div id="coupons-content" class="content">
+            <div id="coupons-content" class="content" style="display: block;">
                 <h2>Мої Купони</h2>
                 <p>Тут відображатимуться ваші доступні купони.</p>
-                <i class="fas fa-ticket-alt" style="font-size: 3em; margin-top: 20px;"></i>
+                <i class="fas fa-ticket-alt" style="font-size: 3em; margin-top: 20px;"><p>0</p></i>
             </div>
         </div>
 
         <div id="bottom-nav">
-            <div class="nav-item active" data-target="orders-content">
+            <div class="nav-item" data-target="orders-content">
                 <i class="fas fa-box-open"></i>
                 <span class="nav-text">Замовлення</span>
             </div>
-            <div class="nav-item" data-target="coupons-content">
+            <div class="nav-item active" data-target="coupons-content">
                 <i class="fas fa-ticket-alt"></i>
                 <span class="nav-text">Мої купони</span>
             </div>
@@ -215,5 +213,5 @@
             switchTab('orders-content');
         });
     </script>
-</body>
-</html>
+
+</body></html>
