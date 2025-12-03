@@ -52,9 +52,8 @@
             justify-content: center; /* Центруємо кнопку по вертикалі */
             align-items: center;
             flex-grow: 1; 
-            /* display: none; ВИМКНЕНО, БО КОНТРОЛЮЄТЬСЯ JS */
         }
-        
+
         /* Кругла кнопка "Зробити замовлення" */
         #order-button {
             width: 200px;
@@ -81,9 +80,199 @@
 
         /* Стилі для розділу "Мої купони" */
         #coupons-content {
-            display: none;
             color: #6c757d;
         }
+        
+        /* Стилі для розділу "Профіль" */
+        #profile-content {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .profile-pic-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: #ddd;
+        }
+
+        #profile-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .change-photo-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 30%;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7em;
+            cursor: pointer;
+        }
+        
+        .name-display {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        /* Стилі для плаваючої кнопки (FAB) */
+        #promocodes-button {
+            width: 50px; 
+            height: 50px; 
+            padding: 0;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 50%; 
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            position: fixed; 
+            bottom: 85px; 
+            right: 15px; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 5; 
+            display: none; /* ПРИХОВАНА ЗА ЗАМОВЧУВАННЯМ */
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        
+        #promocodes-button:active {
+            transform: scale(0.95);
+        }
+        
+        #promocodes-button span {
+            display: none;
+        }
+
+        /* Стилі для модального вікна */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 10; 
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4); 
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto; 
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; 
+            max-width: 400px;
+            border-radius: 10px;
+            position: relative;
+            animation: slideIn 0.3s ease-out;
+            text-align: left; /* Вирівнювання тексту в модальному вікні */
+        }
+        
+        @keyframes slideIn {
+            from {transform: translateY(-50px); opacity: 0}
+            to {transform: translateY(0); opacity: 1}
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Стилі для поля вводу */
+        #promo-input {
+            width: calc(100% - 10px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            text-transform: uppercase;
+        }
+
+        #activate-promo-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #activate-promo-btn:hover {
+            background-color: #1e7e34;
+        }
+        
+        #promo-message {
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        /* Стилі для списку промокодів (коли ROMA123 введено) */
+        .promocode-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 15px;
+        }
+        
+        .promocode-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95em;
+        }
+        
+        .promocode-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .promocode-list .code {
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        .promocode-list .value {
+            color: #28a745;
+            font-weight: bold;
+        }
+
 
         /* Нижня навігаційна панель */
         #bottom-nav {
@@ -93,7 +282,8 @@
             height: 60px;
             background-color: #fff;
             border-top: 1px solid #ddd;
-            flex-shrink: 0; /* Не дозволяємо стискати цей блок */
+            flex-shrink: 0; 
+            z-index: 10; 
         }
 
         .nav-item {
@@ -129,65 +319,157 @@
 
         <div id="content-wrapper"> 
             
-            <div id="orders-content" class="content" style="display: none;">
+            <div id="orders-content" class="content" style="display: flex;">
                 <button id="order-button">
                     Зробити замовлення
                 </button>
             </div>
 
-            <div id="coupons-content" class="content" style="display: block;">
+            <div id="coupons-content" class="content" style="display: none;">
                 <h2>Мої Купони</h2>
                 <p>Тут відображатимуться ваші доступні купони.</p>
-                <i class="fas fa-ticket-alt" style="font-size: 3em; margin-top: 20px;"><p>0</p></i>
+                <i class="fas fa-ticket-alt" style="font-size: 3em; margin-top: 20px;"><p id="coupon-count">0</p></i>
             </div>
+            
+            <div id="profile-content" class="content" style="display: none;">
+                <h2>Профіль</h2>
+                <div class="profile-pic-container">
+                    <img id="profile-image" src="https://via.placeholder.com/120/007bff/ffffff?text=VM" alt="Фото профілю">
+                    <div class="change-photo-overlay" onclick="document.getElementById('file-input').click()">
+                        <i class="fas fa-camera"></i> Змінити
+                    </div>
+                </div>
+                <input type="file" id="file-input" accept="image/*" style="display: none;">
+                
+                <div class="name-display" id="user-name">Віталій Мельник <i class="fas fa-pen" style="font-size: 0.8em; margin-left: 5px;"></i></div>
+                
+                <p style="color: #6c757d; margin-top: 0;">Натисніть на ім'я, щоб змінити його.</p>
+                
+            </div>
+
         </div>
+        
+        <button id="promocodes-button">
+            <i class="fas fa-tag"></i> <span>Промокоди</span>
+        </button>
 
         <div id="bottom-nav">
-            <div class="nav-item" data-target="orders-content">
+            <div class="nav-item active" data-target="orders-content">
                 <i class="fas fa-box-open"></i>
                 <span class="nav-text">Замовлення</span>
             </div>
-            <div class="nav-item active" data-target="coupons-content">
+            <div class="nav-item" data-target="coupons-content">
                 <i class="fas fa-ticket-alt"></i>
                 <span class="nav-text">Мої купони</span>
+            </div>
+            <div class="nav-item" data-target="profile-content">
+                <i class="fas fa-user"></i>
+                <span class="nav-text">Профіль</span>
             </div>
         </div>
     </div>
 
-    <script>
-        // === JavaScript Логіка (Без змін, працює коректно) ===
+    <div id="promocodes-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="close-modal-btn">&times;</span>
+            <h3>Активувати Промокод</h3>
+            
+            <input type="text" id="promo-input" placeholder="Введіть промокод">
+            <button id="activate-promo-btn">Активувати</button>
+            
+            <div id="promo-results">
+                <p id="promo-message" style="color: #6c757d;">Введіть код для активації.</p>
+                <ul class="promocode-list" style="display: none;"></ul>
+            </div>
+            
+        </div>
+    </div>
 
+
+    <script>
         document.addEventListener('DOMContentLoaded', () => {
             const navItems = document.querySelectorAll('.nav-item');
             const contents = document.querySelectorAll('.content');
             const orderButton = document.getElementById('order-button');
             const appContainer = document.getElementById('app-container');
+            
+            // Елементи Профілю
+            const userNameElement = document.getElementById('user-name');
+            const profileImage = document.getElementById('profile-image');
+            const fileInput = document.getElementById('file-input');
+            
+            // Елементи Купонів
+            let couponCount = 0;
+            const couponCountElement = document.getElementById('coupon-count');
+
+            // Елементи Модального вікна
+            const promocodesButton = document.getElementById('promocodes-button');
+            const modal = document.getElementById('promocodes-modal');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const promoInput = document.getElementById('promo-input');
+            const activatePromoBtn = document.getElementById('activate-promo-btn');
+            const promoMessage = document.getElementById('promo-message');
+            const promocodeList = modal.querySelector('.promocode-list');
+            
+            // Список промокодів
+            const PROMOCODES = {
+                'LAST': 1,
+                'LOVE': 1,
+                'START': 1,
+                'ADMIN': 10000000,
+                'VOLODYA': 1,
+                'VOVA': 1,
+                'MAMA': 1,
+                'TATO': 1,
+                'VITALIK': 1,
+                'PROMO1': 1,
+                'PROMO2': 1,
+                'PROMO3': 1,
+                'PROMO4': 1,
+                'PROMO5': 1,
+                'PROMO6': 1,
+                'PROMO7': 1,
+                'PROMO8': 1,
+                'PROMO9': 1,
+                'PROMO10': 1
+            };
+            
+            // Визначаємо початкову вкладку
+            const initialTab = 'orders-content';
 
             // Функція для перемикання вкладок
             function switchTab(targetId) {
-                // 1. Приховати весь вміст
                 contents.forEach(content => {
                     content.style.display = 'none';
                 });
 
-                // 2. Зняти активний стан з усіх елементів навігації
                 navItems.forEach(item => {
                     item.classList.remove('active');
                 });
 
-                // 3. Показати потрібний вміст і зробити активним елемент навігації
                 const targetContent = document.getElementById(targetId);
-                // ВАЖЛИВО: Оскільки #orders-content має властивість justify-content: center, 
-                // ми використовуємо display: flex;
+                
+                // Налаштування display для вмісту
                 if (targetId === 'orders-content') {
                     targetContent.style.display = 'flex'; 
+                    targetContent.style.justifyContent = 'center'; 
+                } else if (targetId === 'profile-content') {
+                    targetContent.style.display = 'flex'; 
+                    targetContent.style.flexDirection = 'column'; 
+                    targetContent.style.justifyContent = 'flex-start'; 
                 } else {
-                    // Для інших вкладок, якщо вони не потребують flex для центрування
                     targetContent.style.display = 'block'; 
                 }
 
                 const targetNavItem = document.querySelector(`.nav-item[data-target="${targetId}"]`);
                 targetNavItem.classList.add('active');
+                
+                // Відображати плаваючу кнопку ЛИШЕ на вкладці "Профіль"
+                if (targetId === 'profile-content') {
+                    promocodesButton.style.display = 'flex';
+                } else {
+                    promocodesButton.style.display = 'none';
+                }
             }
 
             // Обробник кліку на навігаційні елементи
@@ -200,17 +482,103 @@
 
             // Обробник кліку на кнопку "Зробити замовлення"
             orderButton.addEventListener('click', () => {
-                // 1. Додаємо клас для анімації зникнення
                 appContainer.classList.add('fade-out');
-
-                // 2. Перенаправляємо через 500 мс (довжина transition у CSS)
                 setTimeout(() => {
                     window.location.href = 'qwest.html';
                 }, 500);
             });
+            
+            // *** Функціонал Профілю ***
 
-            // Встановити вкладку "Замовлення" як початкову (викликається при завантаженні сторінки)
-            switchTab('orders-content');
+            // Зміна імені
+            userNameElement.addEventListener('click', () => {
+                const currentName = userNameElement.textContent.replace(/\s\s*<i.*?<\/i>\s*$/, '').trim();
+                const newName = prompt('Введіть нове ім\'я та прізвище:', currentName);
+                if (newName !== null && newName.trim() !== '') {
+                    userNameElement.innerHTML = `${newName.trim()} <i class="fas fa-pen" style="font-size: 0.8em; margin-left: 5px;"></i>`;
+                }
+            });
+
+            // Зміна фото
+            profileImage.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            fileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        profileImage.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // *** Функціонал Промокодів (Модальне вікно) ***
+            
+            // Наповнення списку промокодів
+            function populatePromocodeList() {
+                promocodeList.innerHTML = ''; 
+                for (const [code, value] of Object.entries(PROMOCODES)) {
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `<span class="code">${code}</span><span><span class="value">${value}</span> купонів</span>`;
+                    promocodeList.appendChild(listItem);
+                }
+            }
+            
+            // Обробник активації промокоду
+            activatePromoBtn.addEventListener('click', () => {
+                const enteredCode = promoInput.value.trim().toUpperCase();
+                
+                // Скидаємо попередній стан
+                promoMessage.style.display = 'block';
+                promocodeList.style.display = 'none';
+                
+                if (enteredCode === 'ROMA123') {
+                    promoMessage.textContent = 'Секретний код активовано! Список усіх промокодів:';
+                    promoMessage.style.color = '#007bff';
+                    populatePromocodeList();
+                    promocodeList.style.display = 'block';
+                } else if (PROMOCODES.hasOwnProperty(enteredCode)) {
+                    // Якщо введено реальний, але не секретний код
+                    const coupons = PROMOCODES[enteredCode];
+                    couponCount += coupons;
+                    couponCountElement.textContent = couponCount;
+                    promoMessage.textContent = `Промокод ${enteredCode} активовано! Ви отримали ${coupons} купонів.`;
+                    promoMessage.style.color = '#28a745';
+                    promoInput.value = ''; // Очищаємо поле після успішної активації
+                } else {
+                    promoMessage.textContent = 'Невірний промокод. Спробуйте ще раз.';
+                    promoMessage.style.color = '#dc3545';
+                }
+            });
+            
+            // Відкриття модального вікна
+            promocodesButton.addEventListener('click', () => {
+                // Скидаємо стан модального вікна при відкритті
+                promoInput.value = '';
+                promoMessage.textContent = 'Введіть код для активації.';
+                promoMessage.style.color = '#6c757d';
+                promocodeList.style.display = 'none';
+                
+                modal.style.display = 'block';
+            });
+            
+            // Закриття модального вікна кнопкою X
+            closeModalBtn.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+
+            // Закриття модального вікна при кліку поза ним
+            window.addEventListener('click', (event) => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+            
+            // Встановити початкову вкладку "Замовлення"
+            switchTab(initialTab);
         });
     </script>
 
