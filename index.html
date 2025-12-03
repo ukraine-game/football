@@ -151,7 +151,7 @@
             right: 15px; 
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             z-index: 5; 
-            display: none; /* ПРИХОВАНА ЗА ЗАМОВЧУВАННЯМ */
+            display: none; 
             align-items: center;
             justify-content: center;
             transition: background-color 0.3s, transform 0.2s;
@@ -189,7 +189,7 @@
             border-radius: 10px;
             position: relative;
             animation: slideIn 0.3s ease-out;
-            text-align: left; /* Вирівнювання тексту в модальному вікні */
+            text-align: left; 
         }
         
         @keyframes slideIn {
@@ -397,10 +397,36 @@
             const userNameElement = document.getElementById('user-name');
             const profileImage = document.getElementById('profile-image');
             const fileInput = document.getElementById('file-input');
-            
+            const DEFAULT_PROFILE_IMAGE = 'https://via.placeholder.com/120/007bff/ffffff?text=VM';
+            const PROFILE_IMAGE_KEY = 'profileImage';
+
             // Елементи Купонів
-            let couponCount = 0;
             const couponCountElement = document.getElementById('coupon-count');
+            const COUPON_COUNT_KEY = 'couponCount';
+            const REDEEMED_CODES_KEY = 'redeemedCodes';
+
+            // --- Ініціалізація та завантаження з localStorage ---
+            let couponCount = 0;
+            const savedCount = localStorage.getItem(COUPON_COUNT_KEY);
+            if (savedCount !== null && !isNaN(parseInt(savedCount, 10))) {
+                couponCount = parseInt(savedCount, 10);
+            } else {
+                couponCount = 2; // Початкова кількість купонів
+                localStorage.setItem(COUPON_COUNT_KEY, couponCount);
+            }
+            couponCountElement.textContent = couponCount;
+
+            let redeemedCodes = JSON.parse(localStorage.getItem(REDEEMED_CODES_KEY) || '[]');
+            
+            // --- Завантаження фото профілю ---
+            const savedImage = localStorage.getItem(PROFILE_IMAGE_KEY);
+            if (savedImage) {
+                profileImage.src = savedImage;
+            } else {
+                profileImage.src = DEFAULT_PROFILE_IMAGE;
+            }
+            // -----------------------------------------------------------
+
 
             // Елементи Модального вікна
             const promocodesButton = document.getElementById('promocodes-button');
@@ -431,7 +457,8 @@
                 'PROMO7': 1,
                 'PROMO8': 1,
                 'PROMO9': 1,
-                'PROMO10': 1
+                'PROMO10': 1,
+                'ROMA123': 0 // Секретний код, який не додає купони напряму і не відслідковується як використаний
             };
             
             // Визначаємо початкову вкладку
@@ -499,7 +526,7 @@
                 }
             });
 
-            // Зміна фото
+            // Зміна фото (з збереженням у localStorage)
             profileImage.addEventListener('click', () => {
                 fileInput.click();
             });
@@ -510,6 +537,7 @@
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         profileImage.src = e.target.result;
+                        localStorage.setItem(PROFILE_IMAGE_KEY, e.target.result); // Зберігаємо Data URL
                     };
                     reader.readAsDataURL(file);
                 }
@@ -521,9 +549,16 @@
             function populatePromocodeList() {
                 promocodeList.innerHTML = ''; 
                 for (const [code, value] of Object.entries(PROMOCODES)) {
-                    const listItem = document.createElement('li');
-                    listItem.innerHTML = `<span class="code">${code}</span><span><span class="value">${value}</span> купонів</span>`;
-                    promocodeList.appendChild(listItem);
+                    if (code !== 'ROMA123') { 
+                        const listItem = document.createElement('li');
+                        // Додаємо статус "Використано"
+                        const status = redeemedCodes.includes(code) ? 
+                                       `<span style="color: #dc3545; font-style: italic;">(Використано)</span>` : 
+                                       `<span class="value">${value}</span> купонів`;
+
+                        listItem.innerHTML = `<span class="code">${code}</span>${status}`;
+                        promocodeList.appendChild(listItem);
+                    }
                 }
             }
             
@@ -541,10 +576,24 @@
                     populatePromocodeList();
                     promocodeList.style.display = 'block';
                 } else if (PROMOCODES.hasOwnProperty(enteredCode)) {
-                    // Якщо введено реальний, але не секретний код
+                    // Перевірка на повторне використання
+                    if (redeemedCodes.includes(enteredCode)) {
+                        promoMessage.textContent = `Промокод ${enteredCode} вже був використаний.`;
+                        promoMessage.style.color = '#dc3545';
+                        return; // Зупиняємо виконання
+                    }
+                    
+                    // Якщо промокод не використано
                     const coupons = PROMOCODES[enteredCode];
+                    
                     couponCount += coupons;
                     couponCountElement.textContent = couponCount;
+                    localStorage.setItem(COUPON_COUNT_KEY, couponCount); 
+                    
+                    // Зберігаємо код як використаний
+                    redeemedCodes.push(enteredCode);
+                    localStorage.setItem(REDEEMED_CODES_KEY, JSON.stringify(redeemedCodes));
+
                     promoMessage.textContent = `Промокод ${enteredCode} активовано! Ви отримали ${coupons} купонів.`;
                     promoMessage.style.color = '#28a745';
                     promoInput.value = ''; // Очищаємо поле після успішної активації
@@ -583,4 +632,3 @@
     </script>
 
 </body></html>
-
