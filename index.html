@@ -29,14 +29,21 @@
             display: flex;
             flex-direction: column;
             flex-grow: 1;
+            min-height: 100vh; /* Гарантуємо повну висоту */
+        }
+        
+        /* НОВИЙ КОНТЕЙНЕР ДЛЯ ВСЬОГО ВМІСТУ, ЯКИЙ ВІДТІСНЯЄ НАВІГАЦІЮ ВНИЗ */
+        #content-wrapper {
+            flex-grow: 1; /* Зайняти весь вільний простір */
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto; 
         }
 
-        /* Вміст сторінки */
-        #content {
-            flex-grow: 1;
+        /* Вміст сторінки (одна вкладка) */
+        .content { 
+            flex-grow: 1; /* Вміст вкладки займає весь простір всередині #content-wrapper */
             padding: 20px;
-            overflow-y: auto; /* Дозволяє прокручування, якщо вмісту багато */
-            display: none; /* За замовчуванням приховано */
             text-align: center;
         }
 
@@ -44,10 +51,10 @@
         #orders-content {
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: center; /* Центруємо кнопку по вертикалі */
             align-items: center;
-            height: 100%;
-            display: none; /* Буде показано JS при завантаженні */
+            flex-grow: 1; 
+            /* display: none; ВИМКНЕНО, БО КОНТРОЛЮЄТЬСЯ JS */
         }
         
         /* Кругла кнопка "Зробити замовлення" */
@@ -71,13 +78,12 @@
         }
 
         #order-button:active {
-            transform: scale(0.95); /* Ефект натискання */
+            transform: scale(0.95);
         }
 
         /* Стилі для розділу "Мої купони" */
         #coupons-content {
             display: none;
-            padding-top: 50px;
             color: #6c757d;
         }
 
@@ -89,11 +95,7 @@
             height: 60px;
             background-color: #fff;
             border-top: 1px solid #ddd;
-            position: sticky;
-            bottom: 0;
-            width: 100%;
-            max-width: 480px; /* Важливо для фіксації в мобільному контейнері */
-            margin: 0 auto;
+            flex-shrink: 0; /* Не дозволяємо стискати цей блок */
         }
 
         .nav-item {
@@ -106,7 +108,7 @@
         }
 
         .nav-item.active {
-            color: #007bff; /* Активний колір */
+            color: #007bff;
         }
 
         .nav-item i {
@@ -127,7 +129,7 @@
 
     <div id="app-container">
 
-        <div id="content-wrapper">
+        <div id="content-wrapper"> 
             
             <div id="orders-content" class="content">
                 <button id="order-button">
@@ -155,7 +157,7 @@
     </div>
 
     <script>
-        // === JavaScript Логіка ===
+        // === JavaScript Логіка (Без змін, працює коректно) ===
 
         document.addEventListener('DOMContentLoaded', () => {
             const navItems = document.querySelectorAll('.nav-item');
@@ -177,7 +179,14 @@
 
                 // 3. Показати потрібний вміст і зробити активним елемент навігації
                 const targetContent = document.getElementById(targetId);
-                targetContent.style.display = 'flex'; // Використовуємо flex для центрування вмісту "Замовлення"
+                // ВАЖЛИВО: Оскільки #orders-content має властивість justify-content: center, 
+                // ми використовуємо display: flex;
+                if (targetId === 'orders-content') {
+                    targetContent.style.display = 'flex'; 
+                } else {
+                    // Для інших вкладок, якщо вони не потребують flex для центрування
+                    targetContent.style.display = 'block'; 
+                }
 
                 const targetNavItem = document.querySelector(`.nav-item[data-target="${targetId}"]`);
                 targetNavItem.classList.add('active');
