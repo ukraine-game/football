@@ -43,7 +43,23 @@
             flex-grow: 1; /* Вміст вкладки займає весь простір всередині #content-wrapper */
             padding: 20px;
             text-align: center;
+            /* Додаємо базовий клас для вмісту, щоб полегшити скидання стилів */
+            visibility: hidden; 
+            position: absolute; /* Приховуємо та виводимо з потоку */
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            box-sizing: border-box;
+            background-color: #fff;
         }
+        
+        /* Клас для активного вмісту */
+        .content.active-tab {
+            visibility: visible;
+            position: relative; /* Повертаємо в потік, коли активна */
+        }
+
 
         /* Стилі для розділу "Замовлення" */
         #orders-content {
@@ -51,7 +67,6 @@
             flex-direction: column;
             justify-content: center; /* Центруємо кнопку по вертикалі */
             align-items: center;
-            flex-grow: 1; 
         }
 
         /* Кругла кнопка "Зробити замовлення" */
@@ -68,16 +83,8 @@
             transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-
-        #order-button:hover {
-            background-color: #0056b3;
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        #order-button:active {
-            transform: scale(0.95);
-        }
-
+        /* ... (Інші стилі, що не змінювалися) ... */
+        
         /* Стилі для розділу "Мої купони" */
         #coupons-content {
             color: #6c757d;
@@ -87,6 +94,9 @@
         #profile-content {
             text-align: center;
             padding: 20px;
+            display: flex;
+            flex-direction: column; 
+            justify-content: flex-start;
         }
 
         .profile-pic-container {
@@ -319,19 +329,19 @@
 
         <div id="content-wrapper"> 
             
-            <div id="orders-content" class="content" style="display: flex;">
+            <div id="orders-content" class="content">
                 <button id="order-button">
                     Зробити замовлення
                 </button>
             </div>
 
-            <div id="coupons-content" class="content" style="display: none;">
+            <div id="coupons-content" class="content">
                 <h2>Мої Купони</h2>
                 <p>Тут відображатимуться ваші доступні купони.</p>
                 <i class="fas fa-ticket-alt" style="font-size: 3em; margin-top: 20px;"><p id="coupon-count">2</p></i>
             </div>
             
-            <div id="profile-content" class="content" style="display: none;">
+            <div id="profile-content" class="content">
                 <h2>Профіль</h2>
                 <div class="profile-pic-container">
                     <img id="profile-image" src="https://via.placeholder.com/120/007bff/ffffff?text=VM" alt="Фото профілю">
@@ -393,19 +403,28 @@
             const orderButton = document.getElementById('order-button');
             const appContainer = document.getElementById('app-container');
             
+            // --- КОНСТАНТИ ДЛЯ LOCALSTORAGE ---
+            const COUPON_COUNT_KEY = 'couponCount';
+            const REDEEMED_CODES_KEY = 'redeemedCodes';
+            const PROFILE_IMAGE_KEY = 'profileImage';
+            const USER_NAME_KEY = 'userName';
+            
+            const DEFAULT_PROFILE_IMAGE = 'https://via.placeholder.com/120/007bff/ffffff?text=VM';
+            const DEFAULT_USER_NAME = 'Віталій Мельник';
+
+
             // Елементи Профілю
             const userNameElement = document.getElementById('user-name');
             const profileImage = document.getElementById('profile-image');
             const fileInput = document.getElementById('file-input');
-            const DEFAULT_PROFILE_IMAGE = 'https://via.placeholder.com/120/007bff/ffffff?text=VM';
-            const PROFILE_IMAGE_KEY = 'profileImage';
-
+            
             // Елементи Купонів
             const couponCountElement = document.getElementById('coupon-count');
-            const COUPON_COUNT_KEY = 'couponCount';
-            const REDEEMED_CODES_KEY = 'redeemedCodes';
 
-            // --- Ініціалізація та завантаження з localStorage ---
+
+            // --- Ініціалізація: Завантаження даних ---
+            
+            // 1. Купони
             let couponCount = 0;
             const savedCount = localStorage.getItem(COUPON_COUNT_KEY);
             if (savedCount !== null && !isNaN(parseInt(savedCount, 10))) {
@@ -416,15 +435,19 @@
             }
             couponCountElement.textContent = couponCount;
 
+            // 2. Використані промокоди
             let redeemedCodes = JSON.parse(localStorage.getItem(REDEEMED_CODES_KEY) || '[]');
             
-            // --- Завантаження фото профілю ---
+            // 3. Фото профілю
             const savedImage = localStorage.getItem(PROFILE_IMAGE_KEY);
-            if (savedImage) {
-                profileImage.src = savedImage;
-            } else {
-                profileImage.src = DEFAULT_PROFILE_IMAGE;
-            }
+            profileImage.src = savedImage || DEFAULT_PROFILE_IMAGE;
+
+            // 4. Ім'я користувача
+            const savedName = localStorage.getItem(USER_NAME_KEY);
+            const initialName = savedName || DEFAULT_USER_NAME;
+            userNameElement.innerHTML = `${initialName} <i class="fas fa-pen" style="font-size: 0.8em; margin-left: 5px;"></i>`;
+
+
             // -----------------------------------------------------------
 
 
@@ -458,16 +481,17 @@
                 'PROMO8': 1,
                 'PROMO9': 1,
                 'PROMO10': 1,
-                'ROMA123': 0 // Секретний код, який не додає купони напряму і не відслідковується як використаний
+                'ROMA123': 0 
             };
             
-            // Визначаємо початкову вкладку
             const initialTab = 'orders-content';
 
             // Функція для перемикання вкладок
             function switchTab(targetId) {
                 contents.forEach(content => {
-                    content.style.display = 'none';
+                    // Приховуємо вміст
+                    content.classList.remove('active-tab'); 
+                    content.style.display = 'none'; // Додаткове скидання для WebView
                 });
 
                 navItems.forEach(item => {
@@ -476,7 +500,7 @@
 
                 const targetContent = document.getElementById(targetId);
                 
-                // Налаштування display для вмісту
+                // Відображаємо та налаштовуємо стилі для активної вкладки
                 if (targetId === 'orders-content') {
                     targetContent.style.display = 'flex'; 
                     targetContent.style.justifyContent = 'center'; 
@@ -487,6 +511,9 @@
                 } else {
                     targetContent.style.display = 'block'; 
                 }
+                
+                // Додаємо клас активності
+                targetContent.classList.add('active-tab');
 
                 const targetNavItem = document.querySelector(`.nav-item[data-target="${targetId}"]`);
                 targetNavItem.classList.add('active');
@@ -517,12 +544,14 @@
             
             // *** Функціонал Профілю ***
 
-            // Зміна імені
+            // Зміна імені (з збереженням у localStorage)
             userNameElement.addEventListener('click', () => {
                 const currentName = userNameElement.textContent.replace(/\s\s*<i.*?<\/i>\s*$/, '').trim();
                 const newName = prompt('Введіть нове ім\'я та прізвище:', currentName);
                 if (newName !== null && newName.trim() !== '') {
-                    userNameElement.innerHTML = `${newName.trim()} <i class="fas fa-pen" style="font-size: 0.8em; margin-left: 5px;"></i>`;
+                    const finalName = newName.trim();
+                    userNameElement.innerHTML = `${finalName} <i class="fas fa-pen" style="font-size: 0.8em; margin-left: 5px;"></i>`;
+                    localStorage.setItem(USER_NAME_KEY, finalName); // Зберігаємо нове ім'я
                 }
             });
 
@@ -627,7 +656,13 @@
             });
             
             // Встановити початкову вкладку "Замовлення"
-            switchTab(initialTab);
+            // *** ВАЖЛИВА ЗМІНА: Додаємо таймаут для WebView ***
+            // Запускаємо перемикання після невеликої затримки (200 мс), щоб 
+            // дати додатку встигнути ініціалізувати вбудований браузер.
+            setTimeout(() => {
+                 switchTab(initialTab);
+            }, 200); 
+
         });
     </script>
 
