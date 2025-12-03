@@ -1,122 +1,846 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>Замовлення купону</title>
-<style>
-body{margin:0;font-family:Inter, sans-serif;background:#0d1320;color:#fff;padding:0}
-.container{padding:20px}
-.card{background:#fff;border-radius:16px;padding:20px;color:#000;box-shadow:0 6px 20px rgba(0,0,0,0.35);animation:fadeIn .35s ease}
-@keyframes fadeIn{0%{opacity:0;transform:translateY(12px)}100%{opacity:1;transform:translateY(0)}}
-h2{margin:0 0 14px;font-size:20px;font-weight:700}
-.progress{color:#9aa6b2;font-size:14px;margin-bottom:10px}
-.btn-grid{display:grid;gap:10px;margin-top:10px}
-.btn{padding:14px;border-radius:12px;border:none;font-size:16px;font-weight:600;background:#0ea5e9;color:#fff;cursor:pointer;transition:.2s}
-.btn:active{transform:scale(.95)}
-.btn-alt{background:#e2e8f0;color:#000}
-.note{font-size:12px;color:#6b7280;margin-bottom:8px;margin-top:-2px}
-.input-box{margin-top:12px}
-input{width:100%;padding:12px;border-radius:10px;border:1px solid #94a3b8;font-size:16px}
-.checkbox{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:16px;flex-wrap:wrap}
-.sum{margin-top:20px;font-size:18px;font-weight:700;text-align:center}
-.fullwidth-btn{width:100%;margin-top:16px;background:#16a34a}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Замовлення купону</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* === Базові Стилі та Дизайн === */
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #28a745;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #343a40;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        /* Обмеження для мобільного вигляду */
+        #app-container {
+            width: 100%;
+            max-width: 480px;
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* === Шапка (Заголовок та Індикатор) === */
+        #header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #progress-indicator {
+            font-size: 0.9em;
+            margin-top: 5px;
+            font-weight: 300;
+        }
+
+        /* === Основний Контент (Кроки) === */
+        #quiz-container {
+            padding: 20px;
+            flex-grow: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .step {
+            min-height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            /* Змінена анімація для плавнішого переходу */
+            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.6s ease;
+            background-color: var(--card-bg);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Анімація переходу вперед */
+        .step.hidden-right {
+            transform: translateX(100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Анімація переходу назад */
+        .step.hidden-left {
+            transform: translateX(-100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .step.current {
+            transform: translateX(0);
+            opacity: 1;
+            position: relative;
+        }
+
+        .step-title {
+            font-size: 1.5em;
+            color: var(--text-color);
+            margin-bottom: 25px;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        /* === Панель Суми (Тільки ціна) === */
+        #price-display, #price-display-2, #price-display-3, #price-display-4 {
+            background-color: #fff3cd; /* Світло-жовтий фон */
+            color: #856404; /* Темно-жовтий текст */
+            padding: 10px 15px;
+            margin: 10px 0 20px 0;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            border: 1px solid #ffeeba;
+        }
+
+
+        /* === Стилі Кнопок Вибору та Чекбоксів === */
+        .option-group { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; }
+        .option-button { background-color: #f1f1f1; color: var(--text-color); border: 2px solid #e0e0e0; padding: 15px 20px; border-radius: 12px; cursor: pointer; font-size: 1em; flex-grow: 1; min-width: 100px; max-width: 100%; transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease; text-align: center; position: relative; }
+        .option-button:hover { border-color: var(--primary-color); }
+        .option-button.selected { background-color: var(--primary-color); color: white; border-color: var(--primary-color); box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3); }
+        .price-modifier { display: block; font-size: 0.7em; color: #6c757d; margin-top: 5px; }
+        .option-button.selected .price-modifier { color: #ffffff; }
+        
+        .checkbox-option { display: flex; align-items: center; justify-content: space-between; background-color: var(--card-bg); border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 8px; cursor: pointer; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+        .checkbox-option:hover { border-color: var(--primary-color); }
+        .checkbox-option.selected { border-color: var(--secondary-color); box-shadow: 0 0 5px rgba(40, 167, 69, 0.5); background-color: #e2ffe8; }
+        .checkbox-option input[type="checkbox"] { 
+            margin-right: 15px; 
+            appearance: none; 
+            width: 20px; 
+            height: 20px; 
+            border: 2px solid #ccc; 
+            border-radius: 4px; 
+            outline: none; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            flex-shrink: 0; /* Щоб не стискався */
+        }
+        .checkbox-option input[type="checkbox"]:checked { background-color: var(--secondary-color); border-color: var(--secondary-color); position: relative; }
+        .checkbox-option input[type="checkbox"]:checked:after { content: "\f00c"; font-family: "Font Awesome 5 Free"; font-weight: 900; font-size: 14px; color: white; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        .checkbox-label { flex-grow: 1; display: flex; flex-direction: column; align-items: flex-start; }
+        .checkbox-label strong { font-weight: 500; }
+        
+        #time-input-container { margin-top: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; display: none; background-color: #fcfcfc; }
+        #time-input-container label { display: block; margin-bottom: 10px; font-weight: 500; color: var(--text-color); }
+        #custom-time-input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 1em; }
+        
+        .next-button, .action-button { 
+            width: 100%; 
+            padding: 15px; 
+            background-color: var(--secondary-color); 
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 1.1em; 
+            font-weight: bold; 
+            cursor: pointer; 
+            margin-top: 15px; 
+            transition: background-color 0.2s ease, transform 0.1s ease; 
+        }
+
+        .next-button:hover:not(:disabled), .action-button:hover:not(:disabled) {
+            background-color: #218838;
+        }
+        
+        .next-button:disabled, .action-button:disabled {
+            background-color: #ccc;
+            cursor: default; 
+            opacity: 0.6;
+        }
+        
+        .step-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: auto; 
+            padding-top: 15px;
+        }
+
+        .step-actions button {
+            margin-top: 0; 
+            flex-grow: 1;
+        }
+
+        .back-button {
+            background-color: #6c757d;
+        }
+
+        .back-button:hover {
+            background-color: #5a6268;
+        }
+
+        /* === Фінальний Результат === */
+        #final-result { text-align: center; padding: 40px 20px; }
+        #final-result h2 { color: var(--primary-color); margin-bottom: 30px; }
+        #final-price-display {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin: 20px 0 40px 0;
+            padding: 15px;
+            background: #e9f7ef;
+            border-radius: 15px;
+        }
+        
+        /* Додатковий стиль для повідомлення схвалення на сайті */
+        #approval-message {
+            margin-top: 30px;
+            font-size: 1.1em;
+            color: var(--text-color);
+        }
+
+        .final-actions {
+            display: flex;
+            flex-direction: column; 
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        #confirm-button {
+            background-color: var(--primary-color);
+        }
+
+        #reset-button {
+            background-color: #dc3545;
+        }
+    </style>
 </head>
 <body>
-<div class="container">
 
-<div id="step1" class="card">
-<h2>Кількість купонів</h2>
-<div class="btn-grid">
-<button class="btn" onclick="chooseCoupons(1)">1</button>
-<button class="btn" onclick="chooseCoupons(2)">2</button>
-<button class="btn" onclick="chooseCoupons(3)">3</button>
-<button class="btn" onclick="chooseCoupons(4)">4</button>
-<button class="btn" onclick="chooseCoupons(5)">5</button>
-</div>
+    <div id="app-container">
+
+        <div id="header">
+            <h1>Замовлення купону</h1>
+            <div id="progress-indicator"></div>
+        </div>
+
+        <div id="quiz-container">
+
+            <div id="step-1" class="step current" data-step="1">
+                <div class="step-title">Крок 1: Кількість купонів</div>
+                <div id="price-display">Тепер до оплати: 15 грн</div>
+                
+                <div class="option-group" data-type="single" data-name="quantity">
+                    <button class="option-button" data-value="1" data-quantity="1">1</button>
+                    <button class="option-button" data-value="2" data-quantity="2">2</button>
+                    <button class="option-button" data-value="3" data-quantity="3">3</button>
+                    <button class="option-button" data-value="4" data-quantity="4">4</button>
+                    <button class="option-button" data-value="5" data-quantity="5">5</button>
+                </div>
+                
+                <div class="step-actions">
+                    <button class="next-button" disabled onclick="nextStep(2)">Далі</button>
+                </div>
+            </div>
+
+            <div id="step-2" class="step hidden-right" data-step="2">
+                <div class="step-title">Крок 2: День та час</div>
+                <div id="price-display-2">Тепер до оплати: 15 грн</div>
+                
+                <div class="step-title" style="margin-bottom: 15px; margin-top: 0; font-size: 1.2em;">На який день?</div>
+                <div class="option-group" data-type="single" data-name="day">
+                    <button class="option-button" data-value="Сьогодні" data-price="0">Сьогодні</button>
+                    <button class="option-button" data-value="Завтра" data-price="0">Завтра</button>
+                    <button class="option-button" data-value="Після завтра" data-price="0">Після завтра</button>
+                </div>
+
+                <div class="step-title" style="margin-top: 30px; margin-bottom: 15px; font-size: 1.2em;">На котру годину?</div>
+                <div class="option-group" data-type="single" data-name="time">
+                    <button id="time-any" class="option-button" data-value="Будь-який час" data-price="0">
+                        У будь-який час
+                        <span class="price-modifier">+ 0 грн</span>
+                    </button>
+                    <button id="time-custom" class="option-button" data-value="Мій час" data-price="3">
+                        У мій час
+                        <span class="price-modifier">+ 3 грн</span>
+                    </button>
+                </div>
+                
+                <div id="time-input-container">
+                    <label for="custom-time-input">Введіть ваш час (приклад: 12:00)</label>
+                    <input type="text" id="custom-time-input" placeholder="HH:MM" oninput="checkStep2Completion()">
+                    <p id="time-validation-error" style="color: red; font-size: 0.9em; margin-top: 5px; display: none;">
+                        Некоректний формат часу (використовуйте ЧЧ:ММ).
+                    </p>
+                </div>
+                
+                <div class="step-actions">
+                    <button class="action-button back-button" onclick="goBackStep(1)">Назад</button>
+                    <button class="next-button" disabled onclick="nextStep(3)">Далі</button>
+                </div>
+            </div>
+
+            <div id="step-3" class="step hidden-right" data-step="3">
+                <div class="step-title">Крок 3: Додаткові опції (Оберіть кілька)</div>
+                <div id="price-display-3">Тепер до оплати: 15 грн</div>
+
+                <div class="option-group" data-type="multiple" data-name="options">
+                    <div class="checkbox-option" data-value="Нормальне ставлення" data-price="5">
+                        <input type="checkbox" id="opt-1" onchange="handleCheckboxChange(this, 'options')">
+                        <label for="opt-1" class="checkbox-label">
+                            <strong>Нормальне ставлення</strong>
+                            <span class="price-modifier">+ 5 грн</span>
+                        </label>
+                    </div>
+                    <div class="checkbox-option" data-value="Старання бити/пасувати" data-price="3">
+                        <input type="checkbox" id="opt-2" onchange="handleCheckboxChange(this, 'options')">
+                        <label for="opt-2" class="checkbox-label">
+                            <strong>Старання бити/пасувати</strong>
+                            <span class="price-modifier">+ 3 грн</span>
+                        </label>
+                    </div>
+                    <div class="checkbox-option" data-value="Бутси" data-price="2">
+                        <input type="checkbox" id="opt-3" onchange="handleCheckboxChange(this, 'options')">
+                        <label for="opt-3" class="checkbox-label">
+                            <strong>Бутси</strong>
+                            <span class="price-modifier">+ 2 грн</span>
+                        </label>
+                    </div>
+                    <div class="checkbox-option" data-value="Нічого з переліченого" data-price="0">
+                        <input type="checkbox" id="opt-4" onchange="handleCheckboxChange(this, 'options', true)">
+                        <label for="opt-4" class="checkbox-label">
+                            <strong>Нічого з переліченого</strong>
+                            <span class="price-modifier">+ 0 грн</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="step-actions">
+                    <button class="action-button back-button" onclick="goBackStep(2)">Назад</button>
+                    <button class="next-button" disabled onclick="nextStep(4)">Далі</button>
+                </div>
+            </div>
+
+            <div id="step-4" class="step hidden-right" data-step="4">
+                <div class="step-title">Крок 4: Режими гри (Оберіть кілька)</div>
+                <div id="price-display-4">Тепер до оплати: 15 грн</div>
+                
+                <div class="option-group" data-type="multiple" data-name="modes">
+                    <div class="checkbox-option" data-value="Футбол" data-price="5">
+                        <input type="checkbox" id="mode-1" onchange="handleCheckboxChange(this, 'modes')">
+                        <label for="mode-1" class="checkbox-label">
+                            <strong>Футбол</strong>
+                            <span class="price-modifier">+ 5 грн</span>
+                        </label>
+                    </div>
+                    <div class="checkbox-option" data-value="Касанка (1 торкання)" data-price="2">
+                        <input type="checkbox" id="mode-2" onchange="handleCheckboxChange(this, 'modes')">
+                        <label for="mode-2" class="checkbox-label">
+                            <strong>Касанка (1 торкання)</strong>
+                            <span class="price-modifier">+ 2 грн</span>
+                        </label>
+                    </div>
+                    <div class="checkbox-option" data-value="Від воріт, до воріт" data-price="3">
+                        <input type="checkbox" id="mode-3" onchange="handleCheckboxChange(this, 'modes')">
+                        <label for="mode-3" class="checkbox-label">
+                            <strong>Від воріт, до воріт</strong>
+                            <span class="price-modifier">+ 3 грн</span>
+                        </label>
+                    </div>
+                    <div class="checkbox-option" data-value="Нічого з переліченого" data-price="0">
+                        <input type="checkbox" id="mode-4" onchange="handleCheckboxChange(this, 'modes', true)">
+                        <label for="mode-4" class="checkbox-label">
+                            <strong>Нічого з переліченого</strong>
+                            <span class="price-modifier">+ 0 грн</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="step-actions">
+                    <button class="action-button back-button" onclick="goBackStep(3)">Назад</button>
+                    <button class="next-button" disabled onclick="nextStep(5)">Завершити</button>
+                </div>
+            </div>
+
+            <div id="step-5" class="step hidden-right" data-step="5">
+                <div id="final-result">
+                    <h2>🎉 Ваше замовлення сформовано!</h2>
+                    <p>Залишився останній крок – підтвердження.</p>
+                    <i class="fas fa-check-circle" style="font-size: 5em; color: var(--secondary-color); margin-top: 15px;"></i>
+                    
+                    <div id="final-price-display">Загальна сума: 0 грн</div>
+                    
+                    <p id="approval-message">Натисніть "Підтвердити суму", щоб завершити замовлення. Інформацію про схвалення ви отримаєте в Telegram.</p>
+
+                    <div class="final-actions">
+                        <button id="confirm-button" class="action-button" onclick="sendToTelegramBot()">
+                            Підтвердити суму
+                        </button>
+                        <button id="reset-button" class="action-button back-button" onclick="goBackStep(4)">
+                            Перевибрати (Назад)
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="step-6" class="step hidden-right" data-step="6">
+    <div id="site-approval-result">
+        <h2 style="color: var(--secondary-color);">✅ Дякуємо за замовлення!</h2>
+        <i class="fas fa-thumbs-up" style="font-size: 5em; color: var(--secondary-color); margin-top: 15px;"></i>
+        <p id="final-client-message" style="margin-top: 20px; font-size: 1.1em; line-height: 1.5;">
+            Інформація про оплату та отримання купонів буде надіслана вам у Telegram.
+        </p>
+        <p style="margin-top: 40px; color: var(--text-color);">
+            Ваше замовлення: <span id="summary-price-display" style="font-weight: bold;">0 грн</span>.
+        </p>
+        
+        <div class="final-actions">
+            <button class="action-button primary-new-order" onclick="window.location.reload()">
+                Зробити нове замовлення
+            </button>
+            
+            <a href="index.html" class="action-button back-to-menu-link">
+                Повернутися у меню
+            </a>
+        </div>
 </div>
 
-<div id="step2" class="card" style="display:none">
-<div class="progress">1 з 4</div>
-<h2>На який день?</h2>
-<label class="checkbox"><input type="radio" name="day" value="Сьогодні" onclick="chooseDay('Сьогодні')">Сьогодні</label>
-<label class="checkbox"><input type="radio" name="day" value="Завтра" onclick="chooseDay('Завтра')">Завтра</label>
-<label class="checkbox"><input type="radio" name="day" value="Після завтра" onclick="chooseDay('Після завтра')">Після завтра</label>
-</div>
+    <script>
+        // === КОНФІГУРАЦІЯ TELEGRAM ===
+        const BOT_TOKEN = "8301414454:AAGRbesK_sv51BoCilemIn0q14AEOryNoHY";
+        const ADMIN_CHAT_ID = "2106920885"; 
+        const CLIENT_CHAT_ID = "@Vitalik_3331"; // У реальному застосуванні ID клієнта потрібно отримувати від нього
 
-<div id="step2b" class="card" style="display:none">
-<div class="progress">1 з 4</div>
-<h2>На котру годину?</h2>
-<label class="checkbox"><input type="radio" name="timeType" value="any" onclick="chooseTimeType('any')">У будь який час — +0 грн</label>
-<label class="checkbox"><input type="radio" name="timeType" value="custom" onclick="chooseTimeType('custom')">У мій час — +3 грн</label>
-<div id="customTimeBox" class="input-box" style="display:none">
-<div class="note">Введіть ваш час (приклад: 12:00)</div>
-<input type="text" id="customTimeInput" placeholder="12:00">
-</div>
-<button class="btn fullwidth-btn" onclick="finishStep2()">Далі</button>
-</div>
+        // === Функція для надсилання повідомлення в Telegram (з попереднього коду) ===
+        function sendTelegramMessage(chatId, text) {
+            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+            return fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: text,
+                    parse_mode: 'HTML'
+                })
+            });
+        }
+        // =========================================================================
 
-<div id="step3" class="card" style="display:none">
-<div class="progress">2 з 4</div>
-<h2>Додаткові опції</h2>
-<div id="liveSum3" class="sum" style="margin-top:0;margin-bottom:10px;color:#0ea5e9">Сума: 15 грн</div>
-<label class="checkbox"><input type="checkbox" value="5" onchange="updateOptions(this)"> Нормальне ставлення <span class="note">+5 грн</span></label>
-<label class="checkbox"><input type="checkbox" value="3" onchange="updateOptions(this)"> Старання бити/пасувати <span class="note">+3 грн</span></label>
-<label class="checkbox"><input type="checkbox" value="2" onchange="updateOptions(this)"> Бутси <span class="note">+2 грн</span></label>
-<label class="checkbox"><input type="checkbox" value="0" onchange="updateOptions(this)"> Нічого з переліченого <span class="note">+0 грн</span></label>
-<button class="btn fullwidth-btn" onclick="goStep4()">Далі</button>
-</div>
+        // ======================================
+        // === JS Логіка Квізу та Ціноутворення ===
+        // ======================================
 
-<div id="step4" class="card" style="display:none">
-<div class="progress">3 з 4</div>
-<h2>Режими гри</h2>
-<div id="modeOptions">
-<label class="checkbox"><input type="checkbox" value="5" onchange="updateMode(this)"> Футбол <span class="note">+5 грн</span></label>
-<label class="checkbox"><input type="checkbox" value="2" onchange="updateMode(this)"> Касанка (1 торкання) <span class="note">+2 грн</span></label>
-<label class="checkbox"><input type="checkbox" value="3" onchange="updateMode(this)"> Від воріт, до воріт <span class="note">+3 грн</span></label>
-<label class="checkbox"><input type="checkbox" value="0" onchange="updateMode(this)"> Нічого з переліченого <span class="note">+0 грн</span></label>
-</div>
-<button class="btn fullwidth-btn" onclick="finishAll()">Готово</button>
-</div>
+        const BASE_PRICE_PER_TICKET = 15; 
+        let currentPrice = BASE_PRICE_PER_TICKET;
+        let currentStep = 1;
+        const totalSteps = 4; 
+        let isMovingForward = true; // Для контролю анімації
 
-<div id="final" class="card" style="display:none;text-align:center">
-<h2 id="finalSum">Сума: 0 грн</h2>
-<div class="btn-grid" style="margin-top:15px">
-<button class="btn fullwidth-btn" onclick="sendToAdmin()">Відправити заявку</button>
-<button class="btn btn-alt fullwidth-btn" onclick="restartOrder()">Змінити</button>
-</div>
-</div>
+        const selectedOptions = {
+            quantity: { value: 1, price: 0 }, 
+            day: { value: null, price: 0 },
+            time: { value: null, price: 0 },
+            customTime: { value: '', price: 0 }, 
+            options: { values: [], price: 0 }, // Множинний вибір: ЗБЕРІГАЄМО МАСИВ ЗНАЧЕНЬ ТА ЗАГАЛЬНУ ЦІНУ
+            modes: { values: [], price: 0 }    // Множинний вибір: ЗБЕРІГАЄМО МАСИВ ЗНАЧЕНЬ ТА ЗАГАЛЬНУ ЦІНУ
+        };
 
-</div>
+        // --- Функції оновлення інтерфейсу та навігації ---
 
-<script>
-let base=15,total=15,selectedOptions=0,selectedCoupons=0,selectedModeValue=0;
-let selectedDay='',selectedTime='',selectedTimeType='',selectedOptionsArr=[],selectedModeArr=[];
-const ADMIN_ID="2106920885",USER_ID="2106920885";
+        function updatePrice() {
+            let pricePerTicket = BASE_PRICE_PER_TICKET;
+            
+            // Додаємо вартість додаткових опцій до ціни одного купону
+            pricePerTicket += selectedOptions.time.price; 
+            
+            // Додаємо загальну ціну для множинних опцій
+            pricePerTicket += selectedOptions.options.price; 
+            pricePerTicket += selectedOptions.modes.price;
 
-function show(id){document.querySelectorAll('.card').forEach(c=>c.style.display='none');document.getElementById(id).style.display='block';updateAllLiveSums();}
-function chooseCoupons(n){selectedCoupons=n;show('step2');}
-function chooseDay(d){selectedDay=d;show('step2b');}
-function chooseTimeType(type){selectedTimeType=type;if(type==='any'){total=base;document.getElementById('customTimeBox').style.display='none';selectedTime='будь-який';}else{total=base+3;document.getElementById('customTimeBox').style.display='block';}updateAllLiveSums();}
-function finishStep2(){if(selectedTimeType==='custom'){selectedTime=document.getElementById('customTimeInput').value||'не вказано';}show('step3');}
-function updateOptions(ch){if(ch.checked){selectedOptions+=Number(ch.value);selectedOptionsArr.push(ch.parentElement.textContent.trim());}else{selectedOptions-=Number(ch.value);selectedOptionsArr=selectedOptionsArr.filter(x=>x!==ch.parentElement.textContent.trim());}updateAllLiveSums();}
-function updateMode(ch){if(ch.checked){selectedModeValue+=Number(ch.value);selectedModeArr.push(ch.parentElement.textContent.trim());}else{selectedModeValue-=Number(ch.value);selectedModeArr=selectedModeArr.filter(x=>x!==ch.parentElement.textContent.trim());}updateAllLiveSums();}
-function goStep4(){show('step4');}
-function finishAll(){if(selectedModeArr.length===0){alert("Виберіть хоча б один режим!");return;}let final=(total+selectedOptions+selectedModeValue)*selectedCoupons;document.getElementById('finalSum').innerText=`Сума: ${final} грн`;localStorage.setItem('lastOrder',JSON.stringify({coupons:selectedCoupons,day:selectedDay,time:selectedTime,timeType:selectedTimeType,options:selectedOptionsArr,modes:selectedModeArr,sum:final}));show('final');}
-function restartOrder(){location.reload();}
-function updateAllLiveSums(){let s3=document.getElementById('liveSum3');let live=(total+selectedOptions+selectedModeValue)*selectedCoupons;if(s3)s3.innerText=`Сума: ${live} грн`;}
-function sendToAdmin(){let order=JSON.parse(localStorage.getItem('lastOrder')||'{}');fetch(`https://api.telegram.org/bot8301414454:AAGRbesK_sv51BoCilemIn0q14AEOryNoHY/sendMessage`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:ADMIN_ID,text:`Нова заявка:
-Кількість купонів: ${order.coupons}
-День: ${order.day}
-Година: ${order.time}
-Опції: ${order.options.join(', ')}
-Режими: ${order.modes.join(', ')}
-Сума: ${order.sum} грн
-Відповісти командою:
-/yes - схвалити
-/no - відмовити`})});alert("Заявка надіслана на перевірку!");window.location.href="index.html";}
-</script>
+            const ticketQuantity = selectedOptions.quantity.value;
+            currentPrice = pricePerTicket * ticketQuantity;
 
+
+            const displayMessage = `Тепер до оплати: ${currentPrice} грн`;
+            
+            // Оновлення всіх дисплеїв, крім фінального
+            if (document.getElementById('price-display')) document.getElementById('price-display').textContent = displayMessage;
+            if (document.getElementById('price-display-2')) document.getElementById('price-display-2').textContent = displayMessage;
+            if (document.getElementById('price-display-3')) document.getElementById('price-display-3').textContent = displayMessage;
+            if (document.getElementById('price-display-4')) document.getElementById('price-display-4').textContent = displayMessage;
+            
+            if (document.getElementById('final-price-display')) {
+                document.getElementById('final-price-display').textContent = `Загальна сума: ${currentPrice} грн`;
+            }
+        }
+        
+        // **НОВА/ОНОВЛЕНА ФУНКЦІЯ: Обробка змін чекбоксів**
+        function handleCheckboxChange(checkbox, categoryName, isExclusive = false) {
+            const parentDiv = checkbox.closest('.checkbox-option');
+            const value = parentDiv.getAttribute('data-value');
+            const price = parseFloat(parentDiv.getAttribute('data-price') || 0);
+
+            if (isExclusive) {
+                // Якщо обрано "Нічого з переліченого"
+                const optionGroup = parentDiv.closest('.option-group');
+                const allCheckboxes = optionGroup.querySelectorAll('input[type="checkbox"]');
+                const allOptions = optionGroup.querySelectorAll('.checkbox-option');
+
+                if (checkbox.checked) {
+                    // Знімаємо вибір з усіх інших
+                    selectedOptions[categoryName].values = [];
+                    selectedOptions[categoryName].price = 0;
+                    
+                    allCheckboxes.forEach(cb => {
+                        if (cb !== checkbox) {
+                            cb.checked = false;
+                        }
+                    });
+                    allOptions.forEach(opt => opt.classList.remove('selected'));
+                    
+                    // Додаємо лише ексклюзивну опцію
+                    selectedOptions[categoryName].values.push(value);
+                    parentDiv.classList.add('selected');
+                } else {
+                    // Якщо зняли вибір з ексклюзивної, просто очищаємо
+                    selectedOptions[categoryName].values = [];
+                    parentDiv.classList.remove('selected');
+                }
+            } else {
+                // Звичайний множинний вибір
+                const exclusiveCheckbox = parentDiv.parentNode.querySelector('[data-value="Нічого з переліченого"] input[type="checkbox"]');
+                const exclusiveOption = exclusiveCheckbox ? exclusiveCheckbox.closest('.checkbox-option') : null;
+
+                if (checkbox.checked) {
+                    parentDiv.classList.add('selected');
+                    // Додаємо значення
+                    if (!selectedOptions[categoryName].values.includes(value)) {
+                        selectedOptions[categoryName].values.push(value);
+                    }
+                    // Якщо обрали щось інше, знімаємо "Нічого з переліченого"
+                    if (exclusiveCheckbox && exclusiveCheckbox.checked) {
+                        exclusiveCheckbox.checked = false;
+                        if (exclusiveOption) exclusiveOption.classList.remove('selected');
+                        selectedOptions[categoryName].values = selectedOptions[categoryName].values.filter(v => v !== 'Нічого з переліченого');
+                    }
+                } else {
+                    parentDiv.classList.remove('selected');
+                    // Видаляємо значення
+                    selectedOptions[categoryName].values = selectedOptions[categoryName].values.filter(v => v !== value);
+                }
+            }
+
+            // ПЕРЕРАХОВУЄМО ЗАГАЛЬНУ ЦІНУ КАТЕГОРІЇ
+            let newPrice = 0;
+            const currentStepElement = document.getElementById(`step-${currentStep}`);
+            if (currentStepElement) {
+                // Проходимо по обраних елементах та додаємо їхні ціни
+                selectedOptions[categoryName].values.forEach(val => {
+                    const selectedButton = currentStepElement.querySelector(`.checkbox-option[data-value="${val}"]`);
+                    if (selectedButton) {
+                        newPrice += parseFloat(selectedButton.getAttribute('data-price') || 0);
+                    }
+                });
+            }
+
+            selectedOptions[categoryName].price = newPrice;
+            
+            // ОНОВЛЕННЯ ЦІНИ В РЕАЛЬНОМУ ЧАСІ
+            updatePrice();
+            
+            // Перевірка завершення кроку
+            checkStepCompletion(currentStep);
+        }
+
+        function updateProgress() {
+            if (currentStep <= totalSteps) {
+                document.getElementById('progress-indicator').textContent = `${currentStep} з ${totalSteps} зроблено`;
+            } else if (currentStep === 5) {
+                document.getElementById('progress-indicator').textContent = `Підтвердження`;
+            } else {
+                document.getElementById('progress-indicator').textContent = `Замовлення успішно оформлено!`;
+            }
+            
+            checkStepCompletion(currentStep);
+        }
+        
+        function validateCustomTime(timeString) {
+            if (!timeString) return false;
+            const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/; 
+            if (!timeRegex.test(timeString)) return false;
+            
+            const [hours, minutes] = timeString.split(':').map(Number);
+            if (hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59) {
+                return true;
+            }
+            return false;
+        }
+
+        function checkStepCompletion(step) {
+            let isComplete = false;
+            const nextButton = document.querySelector(`#step-${step} .next-button`);
+
+            switch(step) {
+                case 1:
+                    isComplete = selectedOptions.quantity.value !== null;
+                    break;
+                case 2:
+                    isComplete = selectedOptions.day.value !== null && selectedOptions.time.value !== null;
+                    
+                    if (isComplete && selectedOptions.time.value === 'Мій час') {
+                        const customTimeInputEl = document.getElementById('custom-time-input');
+                        selectedOptions.customTime.value = customTimeInputEl.value.trim();
+                        isComplete = validateCustomTime(selectedOptions.customTime.value); 
+                        
+                        document.getElementById('time-validation-error').style.display = isComplete ? 'none' : 'block';
+                    } else {
+                        document.getElementById('time-validation-error').style.display = 'none';
+                    }
+                    break;
+                case 3:
+                    // Крок 3 завершений, якщо обрана хоча б одна опція
+                    isComplete = selectedOptions.options.values.length > 0;
+                    break;
+                case 4:
+                    // Крок 4 завершений, якщо обраний хоча б один режим
+                    isComplete = selectedOptions.modes.values.length > 0;
+                    break;
+            }
+
+            if (nextButton) {
+                nextButton.disabled = !isComplete;
+            }
+        }
+        
+        function checkStep2Completion() {
+            // При зміні часу оновлюємо перевірку
+            checkStepCompletion(2);
+        }
+
+        function goBackStep(step) {
+            isMovingForward = false;
+            nextStep(step);
+        }
+
+
+        function nextStep(step) {
+            const currentEl = document.getElementById(`step-${currentStep}`);
+            const nextEl = document.getElementById(`step-${step}`);
+            const animationClass = isMovingForward ? 'hidden-right' : 'hidden-left';
+            const reverseAnimationClass = isMovingForward ? 'hidden-left' : 'hidden-right';
+            
+            if (currentEl) {
+                currentEl.classList.add(animationClass);
+                currentEl.classList.remove('current', reverseAnimationClass);
+                // Приховуємо для уникнення накладання
+                setTimeout(() => { currentEl.style.display = 'none'; }, 550); 
+            }
+
+            setTimeout(() => {
+                if (nextEl) {
+                    // Показуємо наступний елемент
+                    nextEl.style.display = 'flex'; 
+                    
+                    // Перевіряємо напрямок, щоб правильно відобразити елемент перед анімацією
+                    if (!isMovingForward) {
+                        nextEl.classList.add(reverseAnimationClass);
+                    } else {
+                        nextEl.classList.add(animationClass);
+                    }
+                    
+                    // Негайно додаємо .current і видаляємо клас, щоб запустити анімацію
+                    nextEl.classList.add('current');
+                    nextEl.classList.remove(animationClass, reverseAnimationClass); 
+                }
+                
+                currentStep = step;
+                updateProgress();
+                updatePrice(); 
+                
+                if (step === 6) {
+                    updateClientApprovalMessage();
+                }
+                isMovingForward = true; // Скидаємо напрямок на "вперед" для наступного кроку
+            }, 50); 
+        }
+
+        // --- Логіка відправки даних та СХВАЛЕННЯ ---
+
+        function formatOptions(options) {
+            if (options.length === 0) return 'Не обрано';
+            const filteredOptions = options.filter(o => !o.includes('Нічого з переліченого'));
+            
+            if (filteredOptions.length === 0 && options.some(o => o.includes('Нічого з переліченого'))) {
+                return 'Нічого з переліченого';
+            }
+            return filteredOptions.join(', ');
+        }
+
+        function getClientApprovalMessage(isApproved, orderDetails) {
+            const time = orderDetails.timeOption === 'Будь-який час'
+                ? "буде повідомлено завчасно"
+                : `${orderDetails.customTime}`;
+                
+            let clientMessage;
+            
+            if (isApproved) {
+                const dayFormatted = orderDetails.day.toLowerCase().replace(' ', ' ');
+                clientMessage = `
+Інформація про оплату та отримання купонів буде надіслана вам у Telegram!
+`;
+            } else {
+                clientMessage = `
+Ваше замовлення купонів було відмовлено! 
+Спробуйте ще раз пізніше!
+`;
+            }
+            return clientMessage.trim();
+        }
+
+        function updateClientApprovalMessage() {
+            const isApproved = true; 
+            
+            const orderDetails = {
+                quantity: selectedOptions.quantity.value,
+                day: selectedOptions.day.value,
+                timeOption: selectedOptions.time.value,
+                customTime: selectedOptions.customTime.value,
+                totalPrice: currentPrice
+            };
+            
+            const message = getClientApprovalMessage(isApproved, orderDetails);
+            
+            document.getElementById('final-client-message').innerHTML = message.replace(/\n/g, '<br>');
+            document.getElementById('summary-price-display').textContent = `${orderDetails.totalPrice} грн`;
+        }
+        
+        function sendToTelegramBot() {
+            // 1. Збираємо фінальні дані замовлення
+            const orderDetails = {
+                quantity: selectedOptions.quantity.value,
+                day: selectedOptions.day.value,
+                timeOption: selectedOptions.time.value,
+                customTime: selectedOptions.customTime.value,
+                options: formatOptions(selectedOptions.options.values),
+                modes: formatOptions(selectedOptions.modes.values),
+                totalPrice: currentPrice
+            };
+            
+            // 2. Формуємо Telegram-повідомлення для АДМІНА
+            const adminMessage = `
+НОВЕ ЗАМОВЛЕННЯ (САЙТ) 
+Кількість: ${orderDetails.quantity} шт.
+День: ${orderDetails.day}
+Година: ${orderDetails.timeOption === 'Будь-який час' ? 'Будь-який' : orderDetails.customTime}
+Опції: ${orderDetails.options}
+Режим: ${orderDetails.modes}
+СУМА: ${orderDetails.totalPrice} грн
+Нікнейм клієнта: ${CLIENT_CHAT_ID} 
+`;
+
+            // 3. Відправка повідомлення АДМІНУ
+            sendTelegramMessage(ADMIN_CHAT_ID, adminMessage)
+                .then(response => {
+                    if (response.ok) {
+                        console.log("Повідомлення успішно відправлено адміну.");
+                        nextStep(6); // Переходимо на фінальний крок
+                    } else {
+                        alert("Помилка відправки замовлення. Спробуйте ще раз.");
+                        console.error('Telegram API error:', response.statusText);
+                    }
+                })
+                .catch(error => {
+                    alert("Помилка зв'язку з сервером.");
+                    console.error('Network error:', error);
+                });
+        }
+
+        // --- Обробники Кліків ---
+
+        // Обробка кнопок одиночного вибору
+        document.querySelectorAll('.option-group[data-type="single"] .option-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const group = this.closest('.option-group');
+                const name = group.getAttribute('data-name');
+                const value = this.getAttribute('data-value');
+                const price = parseFloat(this.getAttribute('data-price') || 0);
+
+                group.querySelectorAll('.option-button').forEach(btn => btn.classList.remove('selected'));
+                this.classList.add('selected');
+
+                if (name === 'quantity') {
+                    selectedOptions[name].value = parseInt(this.getAttribute('data-quantity'));
+                } else {
+                    selectedOptions[name].value = value;
+                    selectedOptions[name].price = price;
+                }
+
+                if (name === 'time') {
+                    const timeInputContainer = document.getElementById('time-input-container');
+                    if (value === 'Мій час') {
+                        timeInputContainer.style.display = 'block';
+                        document.getElementById('time-validation-error').style.display = 'none'; 
+                    } else {
+                        timeInputContainer.style.display = 'none';
+                        selectedOptions.customTime.value = ''; 
+                    }
+                }
+                
+                updatePrice();
+                checkStepCompletion(currentStep);
+            });
+        });
+        
+        // **НОВИЙ КОД: Обробка кліків на div.checkbox-option (для вибору)**
+        document.querySelectorAll('.checkbox-option').forEach(div => {
+            div.addEventListener('click', function(event) {
+                // Запобігаємо події, якщо клік був саме на чекбоксі (бо він має свій onchange)
+                if (event.target.tagName.toLowerCase() === 'input') return;
+
+                const checkbox = this.querySelector('input[type="checkbox"]');
+                if (checkbox) {
+                    checkbox.checked = !checkbox.checked; // Змінюємо стан
+                    // Викликаємо функцію обробки змін для оновлення логіки та ціни
+                    // Зчитуємо параметри, щоб знайти isExclusive
+                    const categoryName = this.closest('.option-group').getAttribute('data-name');
+                    const isExclusive = this.getAttribute('data-value') === 'Нічого з переліченого';
+                    handleCheckboxChange(checkbox, categoryName, isExclusive);
+                }
+            });
+        });
+
+
+        // Ініціалізація
+        document.addEventListener('DOMContentLoaded', () => {
+            // Встановлюємо значення за замовчуванням для першого кроку (1 купон)
+            const defaultQuantityButton = document.querySelector('#step-1 .option-button[data-quantity="1"]');
+            if (defaultQuantityButton) {
+                defaultQuantityButton.classList.add('selected');
+                selectedOptions.quantity.value = 1;
+            }
+            
+            updateProgress();
+            updatePrice();
+        });
+    </script>
 </body>
 </html>
