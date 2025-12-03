@@ -7,14 +7,14 @@
         /* === CSS Стилі === */
 
         /* Скидання базових стилів та налаштування для мобільного вигляду */
-        body {
+        body, html { /* Додано: html для забезпечення повної висоти */
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f4f4f9;
+            height: 100%; /* Додано: Повна висота */
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
         }
 
         /* Обмеження вмісту для імітації мобільного екрана */
@@ -27,7 +27,8 @@
             display: flex;
             flex-direction: column;
             flex-grow: 1;
-            min-height: 100vh; /* Гарантуємо повну висоту */
+            /* Змінено: min-height: 100vh; -> height: 100%; */
+            height: 100%; /* Гарантуємо повну висоту в межах max-width */
         }
         
         /* НОВИЙ КОНТЕЙНЕР ДЛЯ ВСЬОГО ВМІСТУ, ЯКИЙ ВІДТІСНЯЄ НАВІГАЦІЮ ВНИЗ */
@@ -36,6 +37,7 @@
             display: flex;
             flex-direction: column;
             overflow-y: auto; 
+            position: relative; /* Додано: для позиціонування .content.active-tab */
         }
 
         /* Вміст сторінки (одна вкладка) */
@@ -47,11 +49,12 @@
             visibility: hidden; 
             position: absolute; /* Приховуємо та виводимо з потоку */
             width: 100%;
-            height: 100%;
+            height: 100%; /* Повна висота обгортки */
             top: 0;
             left: 0;
             box-sizing: border-box;
             background-color: #fff;
+            overflow-y: auto; /* Дозволяє скрол вмісту вкладки */
         }
         
         /* Клас для активного вмісту */
@@ -158,7 +161,8 @@
             cursor: pointer;
             position: fixed; 
             bottom: 85px; 
-            right: 15px; 
+            /* Змінено для центрування по горизонталі в межах app-container */
+            right: calc(50% - 480px / 2 + 15px); /* Адаптуємо позицію під max-width */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             z-index: 5; 
             display: none; 
@@ -167,6 +171,12 @@
             transition: background-color 0.3s, transform 0.2s;
         }
         
+        @media (max-width: 480px) { /* Якщо ширина менша за max-width, повертаємо до правого краю екрана */
+             #promocodes-button {
+                right: 15px; 
+            }
+        }
+
         #promocodes-button:active {
             transform: scale(0.95);
         }
@@ -538,7 +548,10 @@
             orderButton.addEventListener('click', () => {
                 appContainer.classList.add('fade-out');
                 setTimeout(() => {
-                    window.location.href = 'qwest.html';
+                    // Змініть 'qwest.html' на потрібну вам сторінку
+                    alert('Перехід на сторінку замовлення (qwest.html)'); 
+                    // window.location.href = 'qwest.html'; 
+                    appContainer.classList.remove('fade-out'); // Для демонстрації
                 }, 500);
             });
             
@@ -546,7 +559,8 @@
 
             // Зміна імені (з збереженням у localStorage)
             userNameElement.addEventListener('click', () => {
-                const currentName = userNameElement.textContent.replace(/\s\s*<i.*?<\/i>\s*$/, '').trim();
+                // Витягуємо поточне ім'я, видаляючи іконку олівця
+                const currentName = userNameElement.textContent.replace(/\s\s*<i.*?<\/i>\s*$/, '').trim(); 
                 const newName = prompt('Введіть нове ім\'я та прізвище:', currentName);
                 if (newName !== null && newName.trim() !== '') {
                     const finalName = newName.trim();
@@ -582,8 +596,8 @@
                         const listItem = document.createElement('li');
                         // Додаємо статус "Використано"
                         const status = redeemedCodes.includes(code) ? 
-                                       `<span style="color: #dc3545; font-style: italic;">(Використано)</span>` : 
-                                       `<span class="value">${value}</span> купонів`;
+                                     `<span style="color: #dc3545; font-style: italic;">(Використано)</span>` : 
+                                     `<span class="value">${value}</span> купонів`;
 
                         listItem.innerHTML = `<span class="code">${code}</span>${status}`;
                         promocodeList.appendChild(listItem);
@@ -626,6 +640,13 @@
                     promoMessage.textContent = `Промокод ${enteredCode} активовано! Ви отримали ${coupons} купонів.`;
                     promoMessage.style.color = '#28a745';
                     promoInput.value = ''; // Очищаємо поле після успішної активації
+                    
+                    // Оновлюємо кількість купонів на вкладці "Мої купони"
+                    const couponsTab = document.getElementById('coupons-content');
+                    if (couponsTab.classList.contains('active-tab')) {
+                        // Якщо вкладка активна, користувач побачить оновлення при наступному її відкритті
+                        // або можна додати невеличку анімацію чи сповіщення.
+                    }
                 } else {
                     promoMessage.textContent = 'Невірний промокод. Спробуйте ще раз.';
                     promoMessage.style.color = '#dc3545';
@@ -656,11 +677,9 @@
             });
             
             // Встановити початкову вкладку "Замовлення"
-            // *** ВАЖЛИВА ЗМІНА: Додаємо таймаут для WebView ***
-            // Запускаємо перемикання після невеликої затримки (200 мс), щоб 
-            // дати додатку встигнути ініціалізувати вбудований браузер.
+            // Запускаємо перемикання після невеликої затримки (200 мс)
             setTimeout(() => {
-                 switchTab(initialTab);
+                switchTab(initialTab);
             }, 200); 
 
         });
